@@ -1,0 +1,40 @@
+<html>
+    <head>
+        <title>WebRTC Test</title>
+    </head>
+    <body>
+        <h1>WebRTC Test</h1>
+
+        <p>Connection Type</p>
+        <div>
+            <p>This is the _____ connection</p>
+            <select id="connection-type">
+                <option value="local">local</option>
+                <option value="remote">remote</option>
+            </select>
+            <button id="submit-type">Submit</button>
+        </div>
+
+        <p>Local Offer</p>
+        <div>
+            <textarea id="local-offer" disabled="true"></textarea>
+            <button id="submit-local" disabled="true">Submit</button>
+        </div>
+
+        <p>Remote Offer</p>
+        <div>
+            <textarea id="remote-offer" disabled="true"></textarea>
+            <button id="submit-remote" disabled="true">Submit</button>    
+        </div>
+        
+        <p>ChatArea</p>
+        <div>
+            <textarea id="chat-box-recieve" disabled="true"></textarea>
+            <textarea id="chat-box-send" disabled="true"></textarea>
+            <button id="submit-text">Submit</button>
+            <p style="color: green;" id="connection-open-msg"></p> 
+        </div>
+
+        <script src="index.js"></script>
+    </body> 
+</html>
