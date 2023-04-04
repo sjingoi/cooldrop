@@ -138,7 +138,7 @@ function startChatBox(dataChannel) {
 function startFileBox(dataChannel) {
     fileUploadBtn.onclick = () => {
         const file = fileInput.files[0];
-        const chunkSize = 64 * 1024;
+        const chunkSize = 256 * 1024;
         const numChunks = Math.ceil(file.size / chunkSize);
         let offset = 0;
         dataChannel.send("%/chunkcount" + numChunks);
