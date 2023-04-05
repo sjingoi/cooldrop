@@ -21,8 +21,8 @@ connectionMsg = document.getElementById("connection-open-msg")
 fileInput = document.getElementById("fileInput");
 fileUploadBtn = document.getElementById("send-file")
 
-var chunkcount = 0;
 var chunks = [];
+var fileHeader = {};
 
 const SERVERS = {
     iceServers:[
@@ -55,7 +55,7 @@ function createLocalConnection() {
     localOfferBox.disabled = false
 
     dc.onmessage = message => {
-        dataHandler(message);
+        dataHandler(message, dc)
     }
     dc.onopen = e => {
         console.log("Connection opened.")
@@ -99,28 +99,65 @@ function createRemoteConnection() {
     
 }
 
-function dataHandler(message) {
+function dataHandler(message, channel) {
     console.log("Type of data: " + typeof(message.data));
-    if (typeof(message.data) == "string") {
-        if (message.data.startsWith("%/chunkcount")) {
-            chunks = [];
-            chunkcount = parseInt(message.data.replace("%/chunkcount", ""));
-            console.log("Hello123 " + chunkcount)
-        }
-        console.log("Hello");
-        recieveBox.textContent = message.data
-        console.log("Hello123 " + chunkcount)
-    } else if (typeof(message.data) == "object") {
-        console.log(chunks.length);
-        //console.log(chunkcount);
+
+
+
+    if (typeof(message.data) != "string") {
         const chunk = message.data;
+
+        // if (fileHeader.chunksize != message.data.byteLength) {
+        //     channel.send(JSON.stringify({
+        //         type: "chunk response",
+        //         recieved: false,
+        //     }))
+        // }
         chunks.push(chunk);
-        if (chunks.length == chunkcount) {
-            console.log("Hello2");
-            fileData = new Blob(chunks, { type: 'application/octet-stream' });
-            downloadBlobAsFile(fileData, "test")
+
+        // if (chunks.length == chunkcount) {
+        //     console.log("Hello2");
+        //     fileData = new Blob(chunks, { type: 'application/octet-stream' });
+        //     downloadBlobAsFile(fileData, "test")
+        // }
+    } else {
+        msg = JSON.parse(message.data)
+
+        switch (msg.type) {
+            // case 'bad chunk':
+            //     if (msg.recieved == true) {
+
+            //     }
+            case 'text':
+                recieveBox.textContent = message.data
+                break;
+            case 'header':
+                chunks = []
+                fileHeader = msg
+                console.log(fileHeader);
+                break;
         }
+
     }
+
+
+
+
+
+    // if (typeof(message.data) == "string") {
+
+    //     if (message.data.startsWith("%/chunkcount")) {
+    //         chunks = [];
+    //         chunkcount = parseInt(message.data.replace("%/chunkcount", ""));
+    //         console.log("Hello123 " + chunkcount)
+    //     }
+    //     // else 
+    //     console.log("Hello");
+    //     recieveBox.textContent = message.data
+    //     console.log("Hello123 " + chunkcount)
+    // } else if (typeof(message.data) == "object") {
+        
+    // }
 }
 
 function startChatBox(dataChannel) {
@@ -138,21 +175,75 @@ function startChatBox(dataChannel) {
 function startFileBox(dataChannel) {
     fileUploadBtn.onclick = () => {
         const file = fileInput.files[0];
-        const chunkSize = 256 * 1024;
+        const chunkSize = 64 * 1024;
         const numChunks = Math.ceil(file.size / chunkSize);
         let offset = 0;
-        dataChannel.send("%/chunkcount" + numChunks);
-        for (let i = 0; i < numChunks; i++) {
-            const chunk = file.slice(offset, offset + chunkSize);
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                dataChannel.send(event.target.result);
-            }
-            reader.readAsArrayBuffer(chunk);
-            offset += chunkSize;
-        }
+        //dataChannel.send("%*chunkcount" + numChunks);
+        dataChannel.send(JSON.stringify({
+            type: 'header',
+            filename: file.name,
+            filetype: file.type,
+            filesize: file.size,
+            chunksize: chunkSize,
+            lastchunksize: (file.size % chunkSize),
+            chunkcount: numChunks
+        }))
+        sliceAndSend(dataChannel, file, chunkSize, 0);
+        // for (let i = 0; i < numChunks; i++) {
+        //     const chunk = file.slice(offset, offset + chunkSize);
+        //     const reader = new FileReader();
+        //     reader.onload = function(event) {
+        //         sendChunk(event.target.result, dataChannel, i);
+        //         // while (dataChannel.bufferedAmount + chunkSize >= 16 * 1024 * 1024) {
+        //         //     setTimeout()
+        //         // }
+        //         // console.log("Buffer: " + dataChannel.bufferedAmount); 
+        //         // console.log("Threshold: " + dataChannel.bufferedAmountLowThreshold); 
+        //         // dataChannel.send(event.target.result);
+        //     }
+        //     reader.readAsArrayBuffer(chunk);
+        //     offset += chunkSize;
+        // }
     }
 }
+
+function sliceAndSend(dataChannel, file, chunkSize, offset) {
+    const chunk = file.slice(offset, offset + chunkSize);
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        if (dataChannel.bufferedAmount + chunkSize >= 16 * 1024 * 1024) {
+            console.log("Waiting...");
+            setTimeout(() => {
+                sliceAndSend(dataChannel, file, chunkSize, offset);
+            }, 10000)
+        } else if (offset <= file.size){
+            //console.log(dataChannel.bufferedAmount);
+            dataChannel.send(event.target.result);
+            sliceAndSend(dataChannel, file, chunkSize, offset + chunkSize);
+        } else {
+            //console.log(offset);
+            console.log("Done sending!");
+        }
+        
+    }
+    reader.readAsArrayBuffer(chunk);
+}
+
+// function sendChunk(chunk, dataChannel, num) {
+    
+//     if (dataChannel.bufferedAmount + chunk.byteLength >= 16 * 1024 * 1024) {
+//         console.log("Waiting...");
+//         setTimeout(() => {
+//             sendChunk(chunk, dataChannel, num);
+//         }, 1000)
+//     } else {
+//         // console.log(chunk.byteLength);
+//         // console.log("Buffer: " + dataChannel.bufferedAmount); 
+//         // console.log("Threshold: " + dataChannel.bufferedAmountLowThreshold); 
+//         console.log("Chunk Num: " + num);
+//         dataChannel.send(chunk);
+//     }
+// }
 
 function uploadFile() {
     const file = fileInput.files[0];
@@ -184,5 +275,5 @@ function downloadBlobAsFile(blob) {
   
     // Clean up the URL object
     URL.revokeObjectURL(downloadLink.href);
-  }
+}
   
