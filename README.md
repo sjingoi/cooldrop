@@ -1,4 +1,4 @@
-# webrtc-tester
+# webrtc-file-tester
 Basic WebRTC App with manual signaling
 
-https://main.dcz6u6t9gyq1t.amplifyapp.com/
+https://main.d1ki1qlbebq62d.amplifyapp.com/
