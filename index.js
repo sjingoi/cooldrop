@@ -215,7 +215,7 @@ function sliceAndSend(dataChannel, file, chunkSize, offset) {
             console.log("Waiting...");
             setTimeout(() => {
                 sliceAndSend(dataChannel, file, chunkSize, offset);
-            }, 10000)
+            }, 100)
         } else if (offset <= file.size){
             //console.log(dataChannel.bufferedAmount);
             dataChannel.send(event.target.result);
