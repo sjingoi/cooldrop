@@ -20,6 +20,9 @@ connectionMsg = document.getElementById("connection-open-msg")
 //FILE TRANSFER
 fileInput = document.getElementById("fileInput");
 fileUploadBtn = document.getElementById("send-file")
+progressBar = document.getElementById("file-progress");
+
+//progressBar.value = 4/7;
 
 var chunks = [];
 var fileHeader = {};
@@ -88,7 +91,7 @@ function createRemoteConnection() {
     rc.ondatachannel = dataChannel => {
         rc.dc = dataChannel.channel
         rc.dc.onmessage = message => {
-            dataHandler(message);
+            dataHandler(message, rc.dc);
         }
         rc.dc.onopen = e => console.log("Connection opened.")
         startChatBox(rc.dc);
@@ -99,41 +102,30 @@ function createRemoteConnection() {
     
 }
 
-function dataHandler(message, channel) {
+function dataHandler(message, dataChannel) {
     console.log("Type of data: " + typeof(message.data));
 
 
 
     if (typeof(message.data) != "string") {
         const chunk = message.data;
-
-        // if (fileHeader.chunksize != message.data.byteLength) {
-        //     channel.send(JSON.stringify({
-        //         type: "chunk response",
-        //         recieved: false,
-        //     }))
-        // }
         chunks.push(chunk);
+        //console.log(fileHeader.numChunks);
+        console.log(dataChannel);
+        dataChannel.send(JSON.stringify({
+            type: 'progress',
+            progress: (chunks.length / fileHeader.chunkcount)
+        }))
+        progressBar.value = chunks.length / fileHeader.chunkcount;
         if (chunks.length == fileHeader.chunkcount) {
             const blob = new Blob(chunks);
             createDownloadable(blob, fileHeader.filename);
-            //window.open(URL.createObjectURL(blob));
-    
+            progressBar.value = 1;
         }
-
-        // if (chunks.length == chunkcount) {
-        //     console.log("Hello2");
-        //     fileData = new Blob(chunks, { type: 'application/octet-stream' });
-        //     downloadBlobAsFile(fileData, "test")
-        // }
     } else {
         msg = JSON.parse(message.data)
 
         switch (msg.type) {
-            // case 'bad chunk':
-            //     if (msg.recieved == true) {
-
-            //     }
             case 'text':
                 recieveBox.textContent = message.data
                 break;
@@ -142,6 +134,8 @@ function dataHandler(message, channel) {
                 fileHeader = msg
                 console.log(fileHeader);
                 break;
+            case 'progress':
+                progressBar.value = msg.progress;
         }
 
     }
@@ -183,8 +177,6 @@ function startFileBox(dataChannel) {
         const file = fileInput.files[0];
         const chunkSize = 64 * 1024;
         const numChunks = Math.ceil(file.size / chunkSize);
-        let offset = 0;
-        //dataChannel.send("%*chunkcount" + numChunks);
         dataChannel.send(JSON.stringify({
             type: 'header',
             filename: file.name,
@@ -195,21 +187,6 @@ function startFileBox(dataChannel) {
             chunkcount: numChunks
         }))
         sliceAndSend(dataChannel, file, chunkSize, 0);
-        // for (let i = 0; i < numChunks; i++) {
-        //     const chunk = file.slice(offset, offset + chunkSize);
-        //     const reader = new FileReader();
-        //     reader.onload = function(event) {
-        //         sendChunk(event.target.result, dataChannel, i);
-        //         // while (dataChannel.bufferedAmount + chunkSize >= 16 * 1024 * 1024) {
-        //         //     setTimeout()
-        //         // }
-        //         // console.log("Buffer: " + dataChannel.bufferedAmount); 
-        //         // console.log("Threshold: " + dataChannel.bufferedAmountLowThreshold); 
-        //         // dataChannel.send(event.target.result);
-        //     }
-        //     reader.readAsArrayBuffer(chunk);
-        //     offset += chunkSize;
-        // }
     }
 }
 
@@ -250,20 +227,6 @@ function sliceAndSend(dataChannel, file, chunkSize, offset) {
 //         dataChannel.send(chunk);
 //     }
 // }
-
-function uploadFile() {
-    const file = fileInput.files[0];
-
-    
-  
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const contents = event.target.result;
-      // Do something with the file contents...
-      console.log(contents);
-    };
-    reader.readAsArrayBuffer(file);
-}
 
 function createDownloadable(blob, fileName) {
 
