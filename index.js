@@ -114,6 +114,12 @@ function dataHandler(message, channel) {
         //     }))
         // }
         chunks.push(chunk);
+        if (chunks.length == fileHeader.chunkcount) {
+            const blob = new Blob(chunks);
+            createDownloadable(blob, fileHeader.filename);
+            //window.open(URL.createObjectURL(blob));
+    
+        }
 
         // if (chunks.length == chunkcount) {
         //     console.log("Hello2");
@@ -259,16 +265,14 @@ function uploadFile() {
     reader.readAsArrayBuffer(file);
 }
 
-function downloadBlobAsFile(blob) {
-    // Get the filename from the Blob object
-    const filename = blob.name;
-  
+function createDownloadable(blob, fileName) {
+
     // Create a new download link element
     const downloadLink = document.createElement('a');
   
     // Set the download link attributes
     downloadLink.href = URL.createObjectURL(blob);
-    downloadLink.download = filename;
+    downloadLink.download = fileName;
   
     // Simulate a click on the download link
     downloadLink.click();
@@ -276,4 +280,3 @@ function downloadBlobAsFile(blob) {
     // Clean up the URL object
     URL.revokeObjectURL(downloadLink.href);
 }
-  
