@@ -1,31 +1,42 @@
 //CONNECTION TYPE
-typeSelection = document.getElementById("connection-type")
-submitTypeBtn = document.getElementById("submit-type")
+var typeSelection: HTMLSelectElement = (document.getElementById("connection-type") as HTMLSelectElement)
+var submitTypeBtn: HTMLButtonElement = (document.getElementById("submit-type") as HTMLButtonElement)
 submitTypeBtn.onclick = submitType
 
 //LOCAL
-submitLocalBtn = document.getElementById("submit-local")
-localOfferBox = document.getElementById("local-offer")
+var submitLocalBtn: HTMLButtonElement = (document.getElementById("submit-local") as HTMLButtonElement)
+var localOfferBox: HTMLTextAreaElement = (document.getElementById("local-offer") as HTMLTextAreaElement)
 
 //REMOTE
-submitRemoteBtn = document.getElementById("submit-remote")
-remoteOfferBox = document.getElementById("remote-offer")
+var submitRemoteBtn: HTMLButtonElement = (document.getElementById("submit-remote") as HTMLButtonElement)
+var remoteOfferBox: HTMLTextAreaElement = (document.getElementById("remote-offer") as HTMLTextAreaElement)
 
 //TEXTBOX
-submitTextBtn = document.getElementById("submit-text")
-sendBox = document.getElementById("chat-box-send")
-recieveBox = document.getElementById("chat-box-recieve")
-connectionMsg = document.getElementById("connection-open-msg")
+var submitTextBtn: HTMLButtonElement = document.getElementById("submit-text") as HTMLButtonElement
+var sendBox: HTMLTextAreaElement = document.getElementById("chat-box-send") as HTMLTextAreaElement
+var recieveBox: HTMLTextAreaElement = document.getElementById("chat-box-recieve") as HTMLTextAreaElement
+var connectionMsg: HTMLElement = document.getElementById("connection-open-msg") as HTMLElement
 
 //FILE TRANSFER
-fileInput = document.getElementById("fileInput");
-fileUploadBtn = document.getElementById("send-file")
-progressBar = document.getElementById("file-progress");
+var fileInput: HTMLInputElement = document.getElementById("fileInput") as HTMLInputElement
+var fileUploadBtn: HTMLButtonElement = document.getElementById("send-file") as HTMLButtonElement
+var progressBar: HTMLProgressElement = document.getElementById("file-progress") as HTMLProgressElement
 
 //progressBar.value = 4/7;
 
-var chunks = [];
-var fileHeader = {};
+
+interface FileHeader {
+    type: 'header',
+    filename: string,
+    filetype: string,
+    filesize: number,
+    chunksize: number,
+    lastchunksize: number,
+    chunkcount: number
+}
+
+var fileHeader: FileHeader;
+var chunks: any[];
 
 const SERVERS = {
     iceServers:[
@@ -82,33 +93,30 @@ function createRemoteConnection() {
     submitRemoteBtn.disabled = true
     localOfferBox.disabled = false
 
-    const offer = JSON.parse(remoteOfferBox.value)
-    const rc = new RTCPeerConnection(SERVERS)
+    const offer: RTCSessionDescription = JSON.parse(remoteOfferBox.value)
+    const rc: RTCPeerConnection = new RTCPeerConnection(SERVERS)
     rc.onicecandidate = e => {
         console.log("Created new ICE candidate.")
         localOfferBox.textContent = JSON.stringify(rc.localDescription)
     }
     rc.ondatachannel = dataChannel => {
-        rc.dc = dataChannel.channel
-        rc.dc.onmessage = message => {
-            dataHandler(message, rc.dc);
+        var dc: RTCDataChannel = dataChannel.channel
+        dc.onmessage = message => {
+            dataHandler(message, dc);
         }
-        rc.dc.onopen = e => console.log("Connection opened.")
-        startChatBox(rc.dc);
-        startFileBox(rc.dc);
+        dc.onopen = e => console.log("Connection opened.")
+        startChatBox(dc);
+        startFileBox(dc);
     }
     rc.setRemoteDescription(offer).then(a => console.log("Offer set."));
     rc.createAnswer().then(answer => rc.setLocalDescription(answer)).then(a => console.log("Answer created."))
-    
 }
 
-function dataHandler(message, dataChannel) {
-    console.log("Type of data: " + typeof(message.data));
-
-
+function dataHandler(message: MessageEvent, dataChannel: RTCDataChannel) {
+    //console.log("Type of data: " + typeof(message.data));
 
     if (typeof(message.data) != "string") {
-        const chunk = message.data;
+        const chunk: any = message.data;
         chunks.push(chunk);
         //console.log(fileHeader.numChunks);
         console.log(dataChannel);
@@ -123,7 +131,7 @@ function dataHandler(message, dataChannel) {
             progressBar.value = 1;
         }
     } else {
-        msg = JSON.parse(message.data)
+        var msg: any = JSON.parse(message.data)
 
         switch (msg.type) {
             case 'text':
@@ -160,7 +168,7 @@ function dataHandler(message, dataChannel) {
     // }
 }
 
-function startChatBox(dataChannel) {
+function startChatBox(dataChannel: RTCDataChannel) {
     sendBox.disabled = false
     localOfferBox.disabled = true
     remoteOfferBox.disabled = true
@@ -172,27 +180,30 @@ function startChatBox(dataChannel) {
     }
 }
 
-function startFileBox(dataChannel) {
+function startFileBox(dataChannel: RTCDataChannel) {
     fileUploadBtn.onclick = () => {
-        const file = fileInput.files[0];
-        const chunkSize = 64 * 1024;
-        const numChunks = Math.ceil(file.size / chunkSize);
-        dataChannel.send(JSON.stringify({
-            type: 'header',
-            filename: file.name,
-            filetype: file.type,
-            filesize: file.size,
-            chunksize: chunkSize,
-            lastchunksize: (file.size % chunkSize),
-            chunkcount: numChunks
-        }))
-        sliceAndSend(dataChannel, file, chunkSize, 0);
+        if (fileInput.files !== null) {
+            const file: File = fileInput.files[0];
+            const chunkSize = 64 * 1024;
+            const numChunks = Math.ceil(file.size / chunkSize);
+            dataChannel.send(JSON.stringify({
+                type: 'header',
+                filename: file.name,
+                filetype: file.type,
+                filesize: file.size,
+                chunksize: chunkSize,
+                lastchunksize: (file.size % chunkSize),
+                chunkcount: numChunks
+            }))
+            sliceAndSend(dataChannel, file, chunkSize, 0);
+        }
+        
     }
 }
 
-function sliceAndSend(dataChannel, file, chunkSize, offset) {
-    const chunk = file.slice(offset, offset + chunkSize);
-    const reader = new FileReader();
+function sliceAndSend(dataChannel: RTCDataChannel, file: File, chunkSize: number, offset: number) {
+    const chunk: Blob = file.slice(offset, offset + chunkSize);
+    const reader: FileReader = new FileReader();
     reader.onload = function(event) {
         if (dataChannel.bufferedAmount + chunkSize >= 16 * 1024 * 1024) {
             console.log("Waiting...");
@@ -200,11 +211,11 @@ function sliceAndSend(dataChannel, file, chunkSize, offset) {
                 sliceAndSend(dataChannel, file, chunkSize, offset);
             }, 100)
         } else if (offset <= file.size){
-            //console.log(dataChannel.bufferedAmount);
-            dataChannel.send(event.target.result);
+            if (event.target !== null && event.target.result !== null && typeof(event.target.result) !== 'string') {
+                dataChannel.send(event.target.result);
+            }
             sliceAndSend(dataChannel, file, chunkSize, offset + chunkSize);
         } else {
-            //console.log(offset);
             console.log("Done sending!");
         }
         
@@ -228,7 +239,7 @@ function sliceAndSend(dataChannel, file, chunkSize, offset) {
 //     }
 // }
 
-function createDownloadable(blob, fileName) {
+function createDownloadable(blob: Blob, fileName: string) {
 
     // Create a new download link element
     const downloadLink = document.createElement('a');
