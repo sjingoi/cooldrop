@@ -4,7 +4,9 @@ frontend:
     # IMPORTANT - Please verify your build commands
     build:
       commands:
+        - npm install -g typescript
         - tsc --project .
+        
   artifacts:
     # IMPORTANT - Please verify your build output directory
     baseDirectory: /
