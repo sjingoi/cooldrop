@@ -1,15 +1,14 @@
 import React, { Component } from 'react';
 import Peer from "./Peer";
 
-function Peers() {
+function Peers({peers}) {
     return (
-        <div>
-            <h1>Peers:</h1>
-                <div>
-                <Peer />
-            </div>
-        </div>
+        <>
+        <h1>PEERS:</h1>
+            {peers.map(peer => {
+                return <Peer peer={peer}/>
+            })}
+        </>
     )
 }
-
 export default Peers;

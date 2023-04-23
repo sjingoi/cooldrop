@@ -1,10 +1,13 @@
-import React, { Component } from 'react';
+import React from 'react';
+import PeerConnection from "../dist/peer-connection"
 
 
-function Peer () {
+
+function Peer ({peer}) {
+
     return (
         <div>
-            <p>Peer</p>
+            <p>{peer.remote_uuid}</p>
         </div>
     )
 }
