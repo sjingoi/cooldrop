@@ -57,6 +57,8 @@ class PeerConnection {
 
             this.datachannel.onmessage = message => this.message_handler(message);
             this.datachannel.onopen = event => this.on_open(event);
+            this.datachannel.onclose = event => console.log("CLOSED");
+            
         } else {
 
             // REMOTE
@@ -66,6 +68,7 @@ class PeerConnection {
                 this.datachannel = event.channel;
                 this.datachannel.onmessage = message => this.message_handler(message);
                 this.datachannel.onopen = event => this.on_open(event);
+                this.datachannel.onclose = event => console.log("CLOSED");
             }
             this.connection.createAnswer().then(answer => this.connection.setLocalDescription(answer)).then(a => console.log("Created answer."));
         }
@@ -95,27 +98,6 @@ class PeerConnection {
                 console.log("Could not send local connection as it is null.");
             }
         }
-        
-
-
-
-        // var sdp_package: Package;
-
-        
-
-        // if (this.connection.localDescription !== null && event.candidate !== null) {
-        //     sdp_package = {
-        //         type: "ice",
-        //         recipient: this.remote_uuid,
-        //         sender: this.local_uuid,
-        //         connection_id: this.connection_id,
-        //         ice_candidate: event.candidate,
-        //         sdp: this.connection.localDescription
-        //     }
-        //     this.send(sdp_package);
-        // } else {
-        //     console.log("Failure to package SDP.");
-        // }
     }
 
     public add_ice_candidate(ice_candidate: RTCIceCandidate) {

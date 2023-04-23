@@ -50,16 +50,6 @@ class Client {
             //console.log(message);
             try {
                 var pkg: SDP_Package = JSON.parse(message);
-                // if (pkg.type == 'ice') {
-                //     console.log("Recieved ICE");
-                //     var remote_client = get_client(pkg.recipient);
-                //     if (remote_client != null) {
-                //         console.log("Sending ICE to remote client.");
-                //         remote_client.send(pkg);
-                //     } else {
-                //         console.log("Remote client UUID not found.");
-                //     }
-                // } else 
                 if (pkg.type == 'sdp') {
                     console.log("Recieved SDP");
                     var remote_client = get_client(pkg.recipient);

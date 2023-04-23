@@ -8,6 +8,7 @@ function Peer ({peer}) {
     return (
         <div>
             <p>{peer.remote_uuid}</p>
+            <input type="file"></input>
         </div>
     )
 }

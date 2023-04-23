@@ -6,7 +6,7 @@ function Peers({peers}) {
         <>
         <h1>PEERS:</h1>
             {peers.map(peer => {
-                return <Peer peer={peer}/>
+                return <Peer key={peer.remote_uuid} peer={peer}/>
             })}
         </>
     )
