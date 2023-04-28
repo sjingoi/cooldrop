@@ -35,6 +35,8 @@ class PeerConnection {
     private remote_uuid: string;
     private send: any;
     public connection_id: string;
+    public on_open = (event: Event) => {}
+    public on_close = (event: Event) => {}
 
 
     public constructor(connection_id: string, local_uuid: string, remote_uuid: string, send: any, remote_offer?: RTCSessionDescription) {
@@ -48,7 +50,7 @@ class PeerConnection {
 
     private setup_datachannel(remote_offer?: RTCSessionDescription) {
         this.connection.onicecandidate = ice_event => this.on_ice(ice_event);
-        if (remote_offer == undefined) {
+        if (remote_offer === undefined) {
 
             //LOCAL
 
@@ -56,7 +58,7 @@ class PeerConnection {
             this.connection.createOffer().then(offer => this.connection.setLocalDescription(offer)).then(a => console.log("Set local description."));
 
             this.datachannel.onmessage = message => this.message_handler(message);
-            this.datachannel.onopen = event => this.on_open(event);
+            this.datachannel.onopen = event => this.on_open_connection(event);
             this.datachannel.onclose = event => console.log("CLOSED");
             
         } else {
@@ -67,7 +69,7 @@ class PeerConnection {
             this.connection.ondatachannel = event => {
                 this.datachannel = event.channel;
                 this.datachannel.onmessage = message => this.message_handler(message);
-                this.datachannel.onopen = event => this.on_open(event);
+                this.datachannel.onopen = event => this.on_open_connection(event);
                 this.datachannel.onclose = event => console.log("CLOSED");
             }
             this.connection.createAnswer().then(answer => this.connection.setLocalDescription(answer)).then(a => console.log("Created answer."));
@@ -78,8 +80,14 @@ class PeerConnection {
 
     }
 
-    private on_open(event: Event) {
-        console.log("CONNECTION OPENED!");
+    private on_open_connection(event: Event) {
+        console.log("Connection Opened!");
+        this.on_open(event);
+    }
+
+    private on_close_connection(event: Event) {
+        console.log("Connection Closed.");
+        this.on_close(event);
     }
 
     private on_ice(event: RTCPeerConnectionIceEvent) {
@@ -106,7 +114,7 @@ class PeerConnection {
 
     public set_remote(sdp: RTCSessionDescription) {
         this.connection.setRemoteDescription(sdp);
-        console.log("Set remote connection.")
+        //console.log("Set remote connection.")
     }
 }
 

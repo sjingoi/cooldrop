@@ -13,73 +13,102 @@ socket.on("message", message => {message_handler(message)});
 
 
 var local_uuid;
-
-var peer_handler;
-
+var on_new_connection;
 var peer_list = [];
 
 function get_peer(connection_id) {
-  for (let i = 0; i < peer_list.length; i++) {
-    if (peer_list[i].connection_id == connection_id) {
-      return peer_list[i];
+    for (let i = 0; i < peer_list.length; i++) {
+        if (peer_list[i].connection_id == connection_id) {
+            return peer_list[i];
+        }
     }
-  }
-  return undefined;
+    return undefined;
 }
 
 
 function message_handler(message) {
-  if (typeof(message) === 'string') {
+    if (typeof(message) !== 'string') return;
+
     var msg = JSON.parse(message);
-    if (msg.type == 'generate sdp') {
-      //console.log(msg)
-      console.log("Creating new peer connection");
-      let new_peer = new PeerConnection(msg.connection_id, msg.recipient, msg.sender, (pkg) => {socket.send(JSON.stringify(pkg))});
-      peer_list.push(new_peer);
-      peer_handler(new_peer);
 
+    switch(msg.type) {
 
-    } else if (msg.type == 'sdp') {
-      console.log("Recieved SDP");
-      let peer = get_peer(msg.connection_id)
-      if (peer !== undefined) {
-        peer.set_remote(msg.sdp);
-      } else {
-        console.log("Connection id not found, creating new conncetion.");
-        let new_peer = new PeerConnection(msg.connection_id, msg.recipient, msg.sender, (pkg) => {socket.send(JSON.stringify(pkg))}, msg.sdp);
-        peer_list.push(new_peer);
-        peer_handler(new_peer);
-      }
+        case 'uuid':
+            local_uuid = msg.uuid;
+            break;
 
+        case 'generate sdp':
+            create_new_connection(msg);
+            break;
 
-    } else if (msg.type == 'uuid') {
-      local_uuid = msg.uuid;
-      console.log("Set local uuid.");
+        case 'sdp':
+            const peer = get_peer(msg.connection_id)
+            if (peer !== undefined) {
+                peer.set_remote(msg.sdp);
+            } else {
+                create_new_connection(msg);
+            }
+            break;
+
     }
-  }
+}
+
+function create_new_connection(params) {
+    let new_peer;
+        
+    new_peer = new PeerConnection(params.connection_id, params.recipient, params.sender, (pkg) => socket.send(JSON.stringify(pkg)), params.sdp);
+    
+    new_peer.on_open = e => {
+        console.log("Test On Open");
+
+    }
+    peer_list.push(new_peer);
+    on_new_connection(new_peer);
 }
 
 
 function App() {
-  const [peers, setPeers] = useState([]);
+const [peers, setPeers] = useState([]);
 
-  function on_new_peer(new_peer) {
+
+
+
+
+
+function on_new_peer(new_peer) {
     setPeers(prevPeers => {
-      console.log(peer_list);
-      return [...prevPeers, new_peer]
+        //console.log(peer_list);
+        return [...prevPeers, new_peer]
     })
-  }
+    }
 
-  peer_handler = on_new_peer;
+    on_new_connection = on_new_peer;
 
-  return (
+    return (
     <div>
-      {/* <Header />
-      <Title />
-      <Legacy /> */}
-      <Peers peers={peers}/>
+        {/* <Header />
+        <Title />
+        <Legacy /> */}
+        <Peers peers={peers}/>
     </div>
-  );
+    );
 }
 
 export default App;
+
+        // if (msg.type == 'generate sdp') {
+        //     create_new_connection(msg);
+        //   } 
+        //   else if (msg.type == 'sdp') {
+        //     const peer = get_peer(msg.connection_id)
+        //     if (peer !== undefined) {
+        //       peer.set_remote(msg.sdp);
+        //     } else {
+        //       create_new_connection(msg);
+        //     }
+      
+        //   } 
+        //   else if (msg.type == 'uuid') {
+        //     local_uuid = msg.uuid;
+        //     console.log("Set local uuid.");
+        //   }
