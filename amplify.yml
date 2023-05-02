@@ -6,6 +6,7 @@ frontend:
       commands:
         - npm install -g typescript
         - cd client-ts
+        - npm install react
         - npm run build
         
   artifacts:
