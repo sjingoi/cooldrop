@@ -1,4 +1,4 @@
-import React from 'react';
+//import React from 'react';
 import PeerConnection from '../scripts/peer-connection';
 
 interface Props {

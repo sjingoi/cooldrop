@@ -79,7 +79,7 @@ class PeerConnection {
     }
 
     private message_handler(message: MessageEvent) {
-
+        console.log(message);
     }
 
     private on_open_connection(event: Event) {
@@ -279,27 +279,27 @@ class PeerConnection {
 //     }
 // }
 
-function sliceAndSend(dataChannel: RTCDataChannel, file: File, chunkSize: number, offset: number) {
-    const chunk: Blob = file.slice(offset, offset + chunkSize);
-    const reader: FileReader = new FileReader();
-    reader.onload = function(event) {
-        if (dataChannel.bufferedAmount + chunkSize >= 16 * 1024 * 1024) {
-            console.log("Waiting...");
-            setTimeout(() => {
-                sliceAndSend(dataChannel, file, chunkSize, offset);
-            }, 100)
-        } else if (offset <= file.size){
-            if (event.target !== null && event.target.result !== null && typeof(event.target.result) !== 'string') {
-                dataChannel.send(event.target.result);
-            }
-            sliceAndSend(dataChannel, file, chunkSize, offset + chunkSize);
-        } else {
-            console.log("Done sending!");
-        }
+// function sliceAndSend(dataChannel: RTCDataChannel, file: File, chunkSize: number, offset: number) {
+//     const chunk: Blob = file.slice(offset, offset + chunkSize);
+//     const reader: FileReader = new FileReader();
+//     reader.onload = function(event) {
+//         if (dataChannel.bufferedAmount + chunkSize >= 16 * 1024 * 1024) {
+//             console.log("Waiting...");
+//             setTimeout(() => {
+//                 sliceAndSend(dataChannel, file, chunkSize, offset);
+//             }, 100)
+//         } else if (offset <= file.size){
+//             if (event.target !== null && event.target.result !== null && typeof(event.target.result) !== 'string') {
+//                 dataChannel.send(event.target.result);
+//             }
+//             sliceAndSend(dataChannel, file, chunkSize, offset + chunkSize);
+//         } else {
+//             console.log("Done sending!");
+//         }
         
-    }
-    reader.readAsArrayBuffer(chunk);
-}
+//     }
+//     reader.readAsArrayBuffer(chunk);
+// }
 
 // function sendChunk(chunk, dataChannel, num) {
     
@@ -317,20 +317,20 @@ function sliceAndSend(dataChannel: RTCDataChannel, file: File, chunkSize: number
 //     }
 // }
 
-function createDownloadable(blob: Blob, fileName: string) {
+// function createDownloadable(blob: Blob, fileName: string) {
 
-    // Create a new download link element
-    const downloadLink = document.createElement('a');
+//     // Create a new download link element
+//     const downloadLink = document.createElement('a');
   
-    // Set the download link attributes
-    downloadLink.href = URL.createObjectURL(blob);
-    downloadLink.download = fileName;
+//     // Set the download link attributes
+//     downloadLink.href = URL.createObjectURL(blob);
+//     downloadLink.download = fileName;
   
-    // Simulate a click on the download link
-    downloadLink.click();
+//     // Simulate a click on the download link
+//     downloadLink.click();
   
-    // Clean up the URL object
-    URL.revokeObjectURL(downloadLink.href);
-}
+//     // Clean up the URL object
+//     URL.revokeObjectURL(downloadLink.href);
+// }
 
 export default PeerConnection

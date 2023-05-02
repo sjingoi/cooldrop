@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import socket from '../scripts/socket';
 import PeerConnection, { Package } from '../scripts/peer-connection';
 import Peer from './Peer';
