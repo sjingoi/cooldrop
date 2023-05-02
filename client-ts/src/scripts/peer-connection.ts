@@ -1,14 +1,14 @@
-interface FileHeader {
-    type: 'header',
-    filename: string,
-    filetype: string,
-    filesize: number,
-    chunksize: number,
-    lastchunksize: number,
-    chunkcount: number
-}
+// interface FileHeader {
+//     type: 'header',
+//     filename: string,
+//     filetype: string,
+//     filesize: number,
+//     chunksize: number,
+//     lastchunksize: number,
+//     chunkcount: number
+// }
 
-interface Package {
+export interface Package {
     type: string,
     recipient: string,
     sender: string,
@@ -17,8 +17,8 @@ interface Package {
     sdp?: RTCSessionDescription
 }
 
-var fileHeader: FileHeader;
-var chunks: any[];
+//var fileHeader: FileHeader;
+//var chunks: any[];
 
 const SERVERS = {
     iceServers:[
@@ -51,6 +51,7 @@ class PeerConnection {
     private setup_datachannel(remote_offer?: RTCSessionDescription) {
         this.connection.onicecandidate = ice_event => this.on_ice(ice_event);
         if (remote_offer === undefined) {
+            console.log("Creating Local Connection")
 
             //LOCAL
 
@@ -59,18 +60,19 @@ class PeerConnection {
 
             this.datachannel.onmessage = message => this.message_handler(message);
             this.datachannel.onopen = event => this.on_open_connection(event);
-            this.datachannel.onclose = event => console.log("CLOSED");
+            this.datachannel.onclose = event => this.on_close_connection(event);
             
         } else {
 
             // REMOTE
+            console.log("Creating Remote Connection")
             
             this.connection.setRemoteDescription(remote_offer);
             this.connection.ondatachannel = event => {
                 this.datachannel = event.channel;
                 this.datachannel.onmessage = message => this.message_handler(message);
                 this.datachannel.onopen = event => this.on_open_connection(event);
-                this.datachannel.onclose = event => console.log("CLOSED");
+                this.datachannel.onclose = event => this.on_close_connection(event);
             }
             this.connection.createAnswer().then(answer => this.connection.setLocalDescription(answer)).then(a => console.log("Created answer."));
         }
@@ -115,6 +117,10 @@ class PeerConnection {
     public set_remote(sdp: RTCSessionDescription) {
         this.connection.setRemoteDescription(sdp);
         //console.log("Set remote connection.")
+    }
+
+    public get_remote_id() {
+        return this.remote_uuid;
     }
 }
 

@@ -6,12 +6,12 @@ const io = require('socket.io')(http, {
     cors: { origin: "*" }
 });
 
-interface SDP_Package {
+interface Package {
     type: string,
     recipient: string,
     connection_id: string,
     ice_candidate: RTCIceCandidate,
-    sdp:  RTCSessionDescription
+    sdp: any
 }
 
 interface Conncetion_Info {
@@ -32,8 +32,8 @@ class Client {
         this.uuid = uuid;
     }
 
-    public send(sdp: SDP_Package) {
-        this.socket.send(JSON.stringify(sdp));
+    public send(pkg: any) {
+        this.socket.send(JSON.stringify(pkg));
     }
 
     public request_sdp(recipient_uuid: string) {
@@ -48,21 +48,25 @@ class Client {
     private message_handler(message: any) {
         if (typeof(message) === 'string') {
             //console.log(message);
-            try {
-                var pkg: SDP_Package = JSON.parse(message);
-                if (pkg.type == 'sdp') {
-                    console.log("Recieved SDP");
-                    var remote_client = get_client(pkg.recipient);
-                    if (remote_client != null) {
-                        console.log("Sending SDP to remote client.");
-                        remote_client.send(pkg);
-                    } else {
-                        console.log("Remote client UUID not found.");
+            
+            var pkg: Package = JSON.parse(message);
+            if (pkg.type === 'sdp') {
+                console.log("Recieved SDP");
+                var remote_client = get_client(pkg.recipient);
+                if (remote_client != null) {
+                    console.log("Sending SDP " + pkg.sdp.type + " to remote client.");
+                    remote_client.send(pkg);
+                } else {
+                    console.log("Remote client UUID not found.");
+                }
+            } else if (pkg.type == 'presence') {
+                for (var i: number = 0; i < clients.length; i++) {
+                    if (clients[i] != this) {
+                        clients[i].request_sdp(this.uuid);
                     }
                 }
-            } catch {
-                console.log("Something went wrong.")
             }
+            
         }
     }
     
@@ -71,6 +75,12 @@ class Client {
         if (index > -1) {
             clients.splice(index, 1);
         }
+
+        // clients.map(client => this.send({
+        //     type: 'close',
+        //     remote_id: this.uuid
+        // }))
+
         console.log("Closing connection");
     }
 }
@@ -96,9 +106,11 @@ io.on('connection', (socket: Socket) => {
 
     var client: Client = new Client(socket, client_uuid);
     console.log("There are " + clients.length + " clients connected.");
+
     for (var i: number = 0; i < clients.length; i++) {
         clients[i].request_sdp(client_uuid);
     }
+    
     clients.push(client);
 })
 

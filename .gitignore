@@ -2,24 +2,27 @@ dist/
 server/node_modules
 server/dist
 
-# dependencies
-client/node_modules
-client/.pnp
-client/.pnp.js
+client
 
-# testing
-client/coverage
+client-ts/logs
+client-ts/*.log
+client-ts/npm-debug.log*
+client-ts/yarn-debug.log*
+client-ts/yarn-error.log*
+client-ts/pnpm-debug.log*
+client-ts/lerna-debug.log*
 
-# production
-client/build
+client-ts/node_modules
+client-ts/dist
+client-ts/dist-ssr
+client-ts/*.local
 
-# misc
-client/.DS_Store
-client/.env.local
-client/.env.development.local
-client/.env.test.local
-client/.env.production.local
-
-client/npm-debug.log*
-client/yarn-debug.log*
-client/yarn-error.log*
+client-ts/.vscode/*
+client-ts/!.vscode/extensions.json
+client-ts/.idea
+client-ts/.DS_Store
+client-ts/*.suo
+client-ts/*.ntvs*
+client-ts/*.njsproj
+client-ts/*.sln
+client-ts/*.sw?
