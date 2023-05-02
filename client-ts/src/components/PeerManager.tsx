@@ -9,6 +9,8 @@ var connections: PeerConnection[] = [];
 function PeerManager() {
     const [isConnected, setIsConnected] = useState(socket.connected);
     const [peers, setPeers] = useState<PeerConnection[]>([]);
+    //console.log("New render")
+    //console.log(peers);
     
 
     useEffect(() => {
@@ -76,19 +78,21 @@ function PeerManager() {
             
             let new_peer: PeerConnection = new PeerConnection(params.connection_id, params.recipient, params.sender, (pkg: Package) => socket.send(JSON.stringify(pkg)), params.sdp);
             
-            new_peer.on_open = e => {
+            new_peer.on_open = () => {
                 //console.log("Test On Open");
                 
                 setPeers(prevPeers => {
-                    
-                    return [...prevPeers, new_peer]});
+                    return [...prevPeers, new_peer]
+                });
             }
-            new_peer.on_close = e => {
+            new_peer.on_close = () => {
                 console.log("Test closed")
+                //console.log(peers);
+                //let index = peers.indexOf(new_peer);
+                //let remainingPeers = peers.filter(peer => peer == new_peer);
                 setPeers(prevPeers => {
-                    const index = prevPeers.indexOf(new_peer);
-                    prevPeers.splice(index, 1);
-                    return prevPeers});
+                    return prevPeers .filter(peer => peer.connection_id !== new_peer.connection_id);
+                });
             }
             connections.push(new_peer);
             console.log("Creating peer with id " + new_peer.get_remote_id())
@@ -100,19 +104,20 @@ function PeerManager() {
         socket.on("message", message => onMessage(message));
 
         return () => {
-            setPeers([]);
+            //setPeers([]);
             socket.off("connect");
             socket.off("disconnect");
             socket.off("message");
           }
     }, [])
 
-    console.log(peers)
+    //console.log(peers)
 
     return (
         <>
             <p>Connection Status: </p>
             {isConnected ? <p style={{color: "green"}}>Connected</p> : <p style={{color: "red"}}>Disconnected</p>}
+            <p>Your ID: {local_uuid}</p>
             <h1>Peers:</h1>
             <ul>
                 {peers.map(peer => <li key={peer.connection_id}><Peer peer={peer} key={peer.connection_id}/></li>)}
