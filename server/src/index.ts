@@ -3,7 +3,8 @@ import { Socket } from "dgram";
 const { v4: uuidv4 } = require('uuid');
 const http = require('http').createServer();
 const io = require('socket.io')(http, {
-    cors: { origin: "*" }
+    cors: { origin: "*",
+            methods: "*"}
 });
 
 interface Package {
@@ -114,4 +115,4 @@ io.on('connection', (socket: Socket) => {
     clients.push(client);
 })
 
-http.listen(8080, "192.168.0.60", () => console.log("Listening on 192.168.0.61:8080"));
+http.listen(80, "0.0.0.0", () => console.log("Listening on port 80"));

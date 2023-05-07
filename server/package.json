@@ -4,7 +4,8 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -12,6 +13,7 @@
   "dependencies": {
     "@types/socket.io": "^3.0.2",
     "socket.io": "^4.6.1",
+    "typescript": "^5.0.4",
     "uuid": "^9.0.0"
   }
 }
