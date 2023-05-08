@@ -1,12 +1,12 @@
-// interface FileHeader {
-//     type: 'header',
-//     filename: string,
-//     filetype: string,
-//     filesize: number,
-//     chunksize: number,
-//     lastchunksize: number,
-//     chunkcount: number
-// }
+interface FileHeader {
+    type: 'header',
+    filename: string,
+    filetype: string,
+    filesize: number,
+    chunksize: number,
+    lastchunksize: number,
+    chunkcount: number
+}
 
 export interface Package {
     type: string,
@@ -34,9 +34,12 @@ class PeerConnection {
     private local_uuid: string;
     private remote_uuid: string;
     private send: any;
+    private chunks: any[] = [];
+    private file_header?: FileHeader = undefined;
     public connection_id: string;
     public on_open = (event: Event) => {}
     public on_close = (event: Event) => {}
+    public on_progess = (progress: number) => {};
 
 
     public constructor(connection_id: string, local_uuid: string, remote_uuid: string, send: any, remote_offer?: RTCSessionDescription) {
@@ -78,10 +81,6 @@ class PeerConnection {
         }
     }
 
-    private message_handler(message: MessageEvent) {
-        console.log(message);
-    }
-
     private on_open_connection(event: Event) {
         console.log("Connection Opened!");
         this.on_open(event);
@@ -108,6 +107,116 @@ class PeerConnection {
                 console.log("Could not send local connection as it is null.");
             }
         }
+    }
+
+    private message_handler(message: MessageEvent) {
+        const dataChannel = this.datachannel;
+
+        if (dataChannel === undefined) {
+            console.log("Data channel not initialized.");
+            return;
+        }
+        //console.log("Type of data: " + typeof(message.data));
+    
+        if (typeof(message.data) !== "string") {
+            if (this.file_header === undefined) {
+                console.log("Recieving data without file header!");
+                return;
+            }
+            const chunk: any = message.data;
+            this.chunks.push(chunk);
+            //console.log(fileHeader.numChunks);
+            console.log(dataChannel);
+            dataChannel.send(JSON.stringify({
+                type: 'progress',
+                progress: (this.chunks.length / this.file_header.chunkcount)
+            }))
+
+            this.on_progess(this.chunks.length / this.file_header.chunkcount);
+            
+            if (this.chunks.length == this.file_header.chunkcount) {
+                const blob = new Blob(this.chunks);
+                createDownloadable(blob, this.file_header.filename);
+                this.chunks = [];
+                this.file_header = undefined;
+                this.on_progess(1);
+                // progressBar.value = 1;
+            }
+        } else {
+            var msg: any = JSON.parse(message.data)
+    
+            switch (msg.type) {
+                case 'text':
+                    // recieveBox.textContent = message.data
+                    break;
+                case 'header':
+                    this.chunks = []
+                    this.file_header = msg
+                    console.log(this.file_header);
+                    break;
+                case 'progress':
+                    this.on_progess(msg.progress);
+                    // progressBar.value = msg.progress;
+                    break;
+                default:
+                    console.log('unknown message type: ' + msg.type);
+            }
+    
+        }
+    }
+
+    private send_header(file: File, chunkSize: number) {
+        if (this.datachannel === undefined) {
+            console.log("Data channel not initialized.");
+            return;
+        }
+        const numChunks = Math.ceil(file.size / chunkSize);
+        this.datachannel.send(JSON.stringify({
+            type: 'header',
+            filename: file.name,
+            filetype: file.type,
+            filesize: file.size,
+            chunksize: chunkSize,
+            lastchunksize: (file.size % chunkSize),
+            chunkcount: numChunks
+        }))
+    }
+
+    private file_sender(file: File, chunkSize: number, offset: number) {
+        const chunk: Blob = file.slice(offset, offset + chunkSize);
+        const reader: FileReader = new FileReader();
+
+        // if (offset == 0) this.send_header(file, chunkSize);
+
+        const this_connection = this;
+        const dataChannel = this.datachannel;
+        if (dataChannel === undefined) {
+            console.log("Data channel not initialized.");
+            return;
+        }
+        reader.onload = function(event) {
+            if (dataChannel.bufferedAmount + chunkSize >= 16 * 1024 * 1024) {
+                console.log("Waiting...");
+                setTimeout(() => {
+                    this_connection.file_sender(file, chunkSize, offset);
+                }, 100)
+            } else if (offset <= file.size){
+                if (event.target !== null && event.target.result !== null && typeof(event.target.result) !== 'string') {
+                    dataChannel.send(event.target.result);
+                }
+                this_connection.file_sender(file, chunkSize, offset + chunkSize);
+            } else {
+                console.log("Done sending!");
+            }
+            
+        }
+        reader.readAsArrayBuffer(chunk);
+    }
+
+    public send_file(file: File) {
+        const chunkSize = 64*1024;
+        this.send_header(file, chunkSize);
+        this.file_sender(file, chunkSize, 0);
     }
 
     public add_ice_candidate(ice_candidate: RTCIceCandidate) {
@@ -190,42 +299,6 @@ class PeerConnection {
 //     rc.createAnswer().then(answer => rc.setLocalDescription(answer)).then(a => console.log("Answer created."))
 // }
 
-// function dataHandler(message: MessageEvent, dataChannel: RTCDataChannel) {
-//     //console.log("Type of data: " + typeof(message.data));
-
-//     if (typeof(message.data) != "string") {
-//         const chunk: any = message.data;
-//         chunks.push(chunk);
-//         //console.log(fileHeader.numChunks);
-//         console.log(dataChannel);
-//         dataChannel.send(JSON.stringify({
-//             type: 'progress',
-//             progress: (chunks.length / fileHeader.chunkcount)
-//         }))
-//         // progressBar.value = chunks.length / fileHeader.chunkcount;
-//         if (chunks.length == fileHeader.chunkcount) {
-//             const blob = new Blob(chunks);
-//             createDownloadable(blob, fileHeader.filename);
-//             // progressBar.value = 1;
-//         }
-//     } else {
-//         var msg: any = JSON.parse(message.data)
-
-//         switch (msg.type) {
-//             case 'text':
-//                 // recieveBox.textContent = message.data
-//                 break;
-//             case 'header':
-//                 chunks = []
-//                 fileHeader = msg
-//                 console.log(fileHeader);
-//                 break;
-//             case 'progress':
-//                 // progressBar.value = msg.progress;
-//         }
-
-//     }
-
 
 
 
@@ -260,46 +333,12 @@ class PeerConnection {
 
 // function startFileBox(dataChannel: RTCDataChannel) {
 //     fileUploadBtn.onclick = () => {
-//         if (fileInput.files !== null) {
-//             const file: File = fileInput.files[0];
-//             const chunkSize = 64 * 1024;
-//             const numChunks = Math.ceil(file.size / chunkSize);
-//             dataChannel.send(JSON.stringify({
-//                 type: 'header',
-//                 filename: file.name,
-//                 filetype: file.type,
-//                 filesize: file.size,
-//                 chunksize: chunkSize,
-//                 lastchunksize: (file.size % chunkSize),
-//                 chunkcount: numChunks
-//             }))
-//             sliceAndSend(dataChannel, file, chunkSize, 0);
-//         }
+        
         
 //     }
 // }
 
-// function sliceAndSend(dataChannel: RTCDataChannel, file: File, chunkSize: number, offset: number) {
-//     const chunk: Blob = file.slice(offset, offset + chunkSize);
-//     const reader: FileReader = new FileReader();
-//     reader.onload = function(event) {
-//         if (dataChannel.bufferedAmount + chunkSize >= 16 * 1024 * 1024) {
-//             console.log("Waiting...");
-//             setTimeout(() => {
-//                 sliceAndSend(dataChannel, file, chunkSize, offset);
-//             }, 100)
-//         } else if (offset <= file.size){
-//             if (event.target !== null && event.target.result !== null && typeof(event.target.result) !== 'string') {
-//                 dataChannel.send(event.target.result);
-//             }
-//             sliceAndSend(dataChannel, file, chunkSize, offset + chunkSize);
-//         } else {
-//             console.log("Done sending!");
-//         }
-        
-//     }
-//     reader.readAsArrayBuffer(chunk);
-// }
+
 
 // function sendChunk(chunk, dataChannel, num) {
     
@@ -317,20 +356,20 @@ class PeerConnection {
 //     }
 // }
 
-// function createDownloadable(blob: Blob, fileName: string) {
+function createDownloadable(blob: Blob, fileName: string) {
 
-//     // Create a new download link element
-//     const downloadLink = document.createElement('a');
+    // Create a new download link element
+    const downloadLink = document.createElement('a');
   
-//     // Set the download link attributes
-//     downloadLink.href = URL.createObjectURL(blob);
-//     downloadLink.download = fileName;
+    // Set the download link attributes
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.download = fileName;
   
-//     // Simulate a click on the download link
-//     downloadLink.click();
+    // Simulate a click on the download link
+    downloadLink.click();
   
-//     // Clean up the URL object
-//     URL.revokeObjectURL(downloadLink.href);
-// }
+    // Clean up the URL object
+    URL.revokeObjectURL(downloadLink.href);
+}
 
 export default PeerConnection

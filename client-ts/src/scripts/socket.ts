@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-const URL = 'https://hello-world-2-386020.uk.r.appspot.com/';
+const URL = 'localhost:8080';
 
 const socket = io(URL);
 
