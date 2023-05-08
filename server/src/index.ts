@@ -1,11 +1,18 @@
 import { Socket } from "dgram";
 
+const express = require('express');
+const app = express();
 const { v4: uuidv4 } = require('uuid');
-const http = require('http').createServer();
-const io = require('socket.io')(http, {
-    cors: { origin: "*",
-            methods: "*"}
+const server = require('http').Server(app);
+const io = require('socket.io')(server, {
+    cors: { origin: "*" }
 });
+
+var PORT: number = 8080;
+
+if (process.env.PORT !== undefined) {
+    PORT = parseInt(process.env.PORT)
+}
 
 interface Package {
     type: string,
@@ -21,6 +28,16 @@ interface Conncetion_Info {
 }
 
 var clients: Client[] = [];
+
+function get_client(uuid: string) {
+    // This will be a linear search for now. This will be converted to a binary search.
+    for (var i: number = 0; i < clients.length; i++) {
+        if (uuid === clients[i].uuid) {
+            return clients[i];
+        }
+    }
+    return null;
+}
 
 class Client {
     public socket: Socket;
@@ -86,16 +103,6 @@ class Client {
     }
 }
 
-function get_client(uuid: string) {
-    // This will be a linear search for now. This will be converted to a binary search.
-    for (var i: number = 0; i < clients.length; i++) {
-        if (uuid === clients[i].uuid) {
-            return clients[i];
-        }
-    }
-    return null;
-}
-
 io.on('connection', (socket: Socket) => {
     var client_uuid: string = uuidv4();
 
@@ -115,4 +122,11 @@ io.on('connection', (socket: Socket) => {
     clients.push(client);
 })
 
-http.listen(80, "0.0.0.0", () => console.log("Listening on port 80"));
+app.get('/hello', (req: any, res: any) => {
+    console.log("Req")
+    res.status(200).send("Hello there!").end();
+})
+
+app.use(express.static("./public"));
+
+server.listen(PORT, "0.0.0.0", () => console.log(`Listening on port ${PORT}`));

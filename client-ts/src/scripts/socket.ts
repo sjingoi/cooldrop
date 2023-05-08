@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-const URL = 'wormhold.azurewebsites.net:80';
+const URL = 'https://hello-world-2-386020.uk.r.appspot.com/';
 
 const socket = io(URL);
 
