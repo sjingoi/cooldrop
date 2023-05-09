@@ -1,7 +1,7 @@
 # webrtc-file-tester
 Basic WebRTC App with manual signaling
 
-https://main.d1ki1qlbebq62d.amplifyapp.com/
+http://20.109.103.24/
 
 Server Dependencies:
 node
