@@ -8,7 +8,7 @@ const io = require('socket.io')(server, {
     cors: { origin: "*" }
 });
 
-var PORT: number = 8080;
+var PORT: number = 80;
 
 if (process.env.PORT !== undefined) {
     PORT = parseInt(process.env.PORT)
@@ -129,4 +129,4 @@ app.get('/hello', (req: any, res: any) => {
 
 app.use(express.static("./public"));
 
-server.listen(PORT, "0.0.0.0", () => console.log(`Listening on port ${PORT}`));
+server.listen(PORT, "10.0.0.4", () => console.log(`Listening on port ${PORT}`));

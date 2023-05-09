@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-const URL = 'localhost:8080';
+const URL = 'cooldrop.cc';
 
 const socket = io(URL);
 
