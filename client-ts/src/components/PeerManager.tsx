@@ -42,15 +42,13 @@ function PeerManager() {
         }
         
         function onMessage(message: any) {
-            
+
             if (typeof(message) !== 'string') return;
 
             console.log("Reieved Message.")
         
             var msg = JSON.parse(message);
 
-            //console.log(peers)
-        
             switch(msg.type) {
         
                 case 'uuid':
@@ -79,24 +77,17 @@ function PeerManager() {
             let new_peer: PeerConnection = new PeerConnection(params.connection_id, params.recipient, params.sender, (pkg: Package) => socket.send(JSON.stringify(pkg)), params.sdp);
             
             new_peer.on_open = () => {
-                //console.log("Test On Open");
-                
                 setPeers(prevPeers => {
                     return [...prevPeers, new_peer]
                 });
             }
             new_peer.on_close = () => {
-                console.log("Test closed")
-                //console.log(peers);
-                //let index = peers.indexOf(new_peer);
-                //let remainingPeers = peers.filter(peer => peer == new_peer);
                 setPeers(prevPeers => {
                     return prevPeers .filter(peer => peer.connection_id !== new_peer.connection_id);
                 });
             }
             connections.push(new_peer);
             console.log("Creating peer with id " + new_peer.get_remote_id())
-            
         }
 
         socket.on("connect", () => onConnect());

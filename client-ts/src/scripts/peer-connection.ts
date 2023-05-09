@@ -23,7 +23,9 @@ export interface Package {
 const SERVERS = {
     iceServers:[
         {
-            urls:["stun:stun1.l.google.com:19302", "stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"]
+            urls:["stun:stun1.l.google.com:19302", "stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302", "turn:cool.drop.cc:3478"],
+            username: "guest",
+            credential: "somepassword",
         }
     ]
 }
@@ -92,6 +94,7 @@ class PeerConnection {
     }
 
     private on_ice(event: RTCPeerConnectionIceEvent) {
+        console.log(event.candidate);
         if (event.candidate == null) {
             //console.log(this.connection.localDescription);
             if (this.connection.localDescription !== null) {
