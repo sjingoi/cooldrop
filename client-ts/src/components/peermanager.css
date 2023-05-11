@@ -1,0 +1,17 @@
+.peer {
+    width: 20rem;
+    height: 20rem;
+    display: inline-block;
+    text-align: center;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    /* outline-style: solid;
+    outline-width: 2px;
+    outline-color: aliceblue; */
+}
+
+.peer-list {
+    text-align: center;
+    width: 100%;
+    padding: 0;
+}

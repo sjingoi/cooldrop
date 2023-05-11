@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import socket from '../scripts/socket';
 import PeerConnection, { Package } from '../scripts/peer-connection';
 import Peer from './Peer';
+import './peermanager.css'
 
 var local_uuid: string;
 var connections: PeerConnection[] = [];
@@ -10,7 +11,7 @@ function PeerManager() {
     const [isConnected, setIsConnected] = useState(socket.connected);
     const [peers, setPeers] = useState<PeerConnection[]>([]);
     //console.log("New render")
-    //console.log(peers);
+    console.log(peers);
     
 
     useEffect(() => {
@@ -102,7 +103,7 @@ function PeerManager() {
           }
     }, [])
 
-    //console.log(peers)
+    
 
     return (
         <>
@@ -110,8 +111,8 @@ function PeerManager() {
             {isConnected ? <p style={{color: "green"}}>Connected</p> : <p style={{color: "red"}}>Disconnected</p>}
             <p>Your ID: {local_uuid}</p>
             <h1>Peers:</h1>
-            <ul>
-                {peers.map(peer => <li key={peer.connection_id}><Peer peer={peer} key={peer.connection_id}/></li>)}
+            <ul className='peer-list'>
+                {peers.map(peer => <li key={peer.connection_id} className='peer'><Peer peer={peer} key={peer.connection_id}/></li>)}
             </ul>
         </>
     )

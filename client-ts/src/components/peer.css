@@ -1,0 +1,91 @@
+.iconph {
+    height: 7rem;
+    width: 7rem;
+    position: relative;
+    margin-top: 2rem;
+    margin-bottom: 0;
+    left: 50%;
+    transform: translate(-50%);
+    background-color: #222;
+}
+
+.name {
+    position: relative;
+    margin-top: 1rem;
+}
+
+.progress {
+    appearance: none;
+    margin-top: 2rem;
+    height: 24px;
+    width: 16rem;
+    outline-style: solid;
+    outline-width: 2px;
+    outline-color: aliceblue;
+    
+}
+
+progress::-webkit-progress-bar {
+    background-color: transparent;
+}
+
+progress::-webkit-progress-value {
+    background-color: aliceblue;
+}
+  
+
+.buttons {
+    margin-top: 2rem;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+
+.input-file {
+    align-items: center;
+    height: 3.5rem;
+    width: 10rem;
+    outline-style: solid;
+    outline-width: 2px;
+    outline-color: aliceblue;
+    display: inline-block;
+    margin-right: 0.75rem;
+}
+
+button {
+    display: none;
+}
+
+.send-file {
+    height: 3.5rem;
+    width: 7rem;
+    outline-style: solid;
+    outline-width: 2px;
+    outline-color: aliceblue;
+    display: inline-block;
+    margin-left: 0.75rem;
+}
+
+.buttons {
+    padding: 0;
+    display: inline-block;
+    position: relative;
+    text-align: center;
+}
+
+.label {
+    display:flex; 
+    align-items:center;
+    justify-content:center;
+    color: aliceblue;
+    height: 100%;
+    transition: 0.3s;
+    font-family: D-DIN-Bold;
+}
+
+.label:hover {
+    background-color: aliceblue;
+    color: black;
+}

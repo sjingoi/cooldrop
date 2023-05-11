@@ -236,142 +236,15 @@ class PeerConnection {
     }
 }
 
-// function submitType() {
-//     /**
-//      * Usually executed when the type selector button is pressed.
-//      */
-//     submitTypeBtn.disabled = true
-//     typeSelection.disabled = true
-//     remoteOfferBox.disabled = false
-
-//     if (typeSelection.value == "local") {
-//         createLocalConnection()
-//     } else {
-//         submitRemoteBtn.disabled = false
-//         submitRemoteBtn.onclick = createRemoteConnection
-//     }
-// }
-
-// function createLocalConnection() {
-//     const lc = new RTCPeerConnection(SERVERS);
-//     const dc = lc.createDataChannel("channel")
-
-//     localOfferBox.disabled = false
-
-//     dc.onmessage = message => {
-//         dataHandler(message, dc)
-//     }
-//     dc.onopen = e => {
-//         console.log("Connection opened.")
-//         startChatBox(dc);
-//         startFileBox(dc);
-//     };
-//     lc.onicecandidate = e => {
-//         console.log("Created new ICE candidate.")
-//         localOfferBox.textContent = JSON.stringify(lc.localDescription)/*.replace("UDP", "TCP").replace("udp","tcp")*/;
-//     }
-//     lc.createOffer().then(offer => lc.setLocalDescription(offer)).then(a => console.log("Local description set successfully."))
-//     submitRemoteBtn.disabled = false
-//     submitRemoteBtn.onclick = () => {
-//         submitRemoteBtn.disabled = true
-//         const answer = JSON.parse(remoteOfferBox.value)
-//         lc.setRemoteDescription(answer)
-//     }
-// }
-
-// function createRemoteConnection() {
-//     submitRemoteBtn.disabled = true
-//     localOfferBox.disabled = false
-
-//     const offer: RTCSessionDescription = JSON.parse(remoteOfferBox.value)
-//     const rc: RTCPeerConnection = new RTCPeerConnection(SERVERS)
-//     rc.onicecandidate = e => {
-//         console.log("Created new ICE candidate.")
-//         localOfferBox.textContent = JSON.stringify(rc.localDescription)
-//     }
-//     rc.ondatachannel = dataChannel => {
-//         var dc: RTCDataChannel = dataChannel.channel
-//         dc.onmessage = message => {
-//             dataHandler(message, dc);
-//         }
-//         dc.onopen = e => console.log("Connection opened.")
-//         startChatBox(dc);
-//         startFileBox(dc);
-//     }
-//     rc.setRemoteDescription(offer).then(a => console.log("Offer set."));
-//     rc.createAnswer().then(answer => rc.setLocalDescription(answer)).then(a => console.log("Answer created."))
-// }
-
-
-
-
-
-    // if (typeof(message.data) == "string") {
-
-    //     if (message.data.startsWith("%/chunkcount")) {
-    //         chunks = [];
-    //         chunkcount = parseInt(message.data.replace("%/chunkcount", ""));
-    //         console.log("Hello123 " + chunkcount)
-    //     }
-    //     // else 
-    //     console.log("Hello");
-    //     recieveBox.textContent = message.data
-    //     console.log("Hello123 " + chunkcount)
-    // } else if (typeof(message.data) == "object") {
-        
-    // }
-//}
-
-// function startChatBox(dataChannel: RTCDataChannel) {
-//     sendBox.disabled = false
-//     localOfferBox.disabled = true
-//     remoteOfferBox.disabled = true
-//     connectionMsg.textContent = "Connection Opened. You can now send messages."
-
-//     submitTextBtn.onclick = () => {
-//         dataChannel.send(sendBox.value)
-//         sendBox.value = "";
-//     }
-// }
-
-// function startFileBox(dataChannel: RTCDataChannel) {
-//     fileUploadBtn.onclick = () => {
-        
-        
-//     }
-// }
-
-
-
-// function sendChunk(chunk, dataChannel, num) {
-    
-//     if (dataChannel.bufferedAmount + chunk.byteLength >= 16 * 1024 * 1024) {
-//         console.log("Waiting...");
-//         setTimeout(() => {
-//             sendChunk(chunk, dataChannel, num);
-//         }, 1000)
-//     } else {
-//         // console.log(chunk.byteLength);
-//         // console.log("Buffer: " + dataChannel.bufferedAmount); 
-//         // console.log("Threshold: " + dataChannel.bufferedAmountLowThreshold); 
-//         console.log("Chunk Num: " + num);
-//         dataChannel.send(chunk);
-//     }
-// }
-
 function createDownloadable(blob: Blob, fileName: string) {
 
-    // Create a new download link element
     const downloadLink = document.createElement('a');
-  
-    // Set the download link attributes
+
     downloadLink.href = URL.createObjectURL(blob);
     downloadLink.download = fileName;
   
-    // Simulate a click on the download link
     downloadLink.click();
   
-    // Clean up the URL object
     URL.revokeObjectURL(downloadLink.href);
 }
 

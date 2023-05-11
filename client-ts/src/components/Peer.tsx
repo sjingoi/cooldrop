@@ -1,6 +1,7 @@
 //import React from 'react';
 import PeerConnection from '../scripts/peer-connection';
 import { useState, useRef } from 'react';
+import './peer.css'
 
 interface Props {
     peer: PeerConnection
@@ -22,12 +23,19 @@ function Peer ({peer}: Props) {
     }
 
     return (
-        <div>
-            <p>{peer.get_remote_id()}</p>
-            <input type="file" ref={fileBoxRef}></input>
-            <button onClick={handleSendFile}>Send</button>
-            <progress id="file_progess" value={progress}></progress>
-        </div>
+        <>
+            <p className='name'>{peer.get_remote_id()}</p>
+            <div className='iconph'></div>
+            <progress value={progress} className='progress'></progress>
+            <input type="file" ref={fileBoxRef} id='file'></input>
+            <button onClick={handleSendFile} id='send-file'>Send</button>
+            <ul className='buttons'>
+                <li className='input-file'><label htmlFor='file' className='label'>CHOOSE FILE</label></li>
+                <li className='send-file'><label htmlFor='send-file' className='label'>SEND</label></li>
+            </ul>
+            
+            
+        </>
     )
 }
 
