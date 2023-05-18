@@ -23,7 +23,7 @@ export interface Package {
 const SERVERS = {
     iceServers:[
         {
-            urls:["stun:stun1.l.google.com:19302", "stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302", "turn:cool.drop.cc:3478"],
+            urls:["stun:stun1.l.google.com:19302", "stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302", "turn:turn.cooldrop.cc:3478"],
             username: "guest",
             credential: "somepassword",
         }
