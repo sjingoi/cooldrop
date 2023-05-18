@@ -23,7 +23,7 @@ export interface Package {
 const SERVERS = {
     iceServers:[
         {
-            urls:["stun:stun1.l.google.com:19302", "stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302", "turn:turn.cooldrop.cc:3478"],
+            urls:["stun:stun1.l.google.com:19302", "stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302", "turn:20.109.103.24:3478"],
             username: "guest",
             credential: "somepassword",
         }
@@ -50,6 +50,7 @@ class PeerConnection {
         this.local_uuid = local_uuid;
         this.remote_uuid = remote_uuid;
         this.connection = new RTCPeerConnection(SERVERS);
+        this.connection.onconnectionstatechange = e => this.on_ice_state_change(e);
         this.setup_datachannel(remote_offer);
     }
 
@@ -85,12 +86,21 @@ class PeerConnection {
 
     private on_open_connection(event: Event) {
         console.log("Connection Opened!");
+        console.log(this.connection.remoteDescription);
         this.on_open(event);
     }
 
     private on_close_connection(event: Event) {
         console.log("Connection Closed.");
         this.on_close(event);
+    }
+
+    private on_ice_state_change(event: Event) {
+        console.log("Connection state changed for remote id " + this.remote_uuid)
+        console.log(this.connection.connectionState);
+        if (this.connection.connectionState === "disconnected") {
+            this.on_close_connection(event);
+        } 
     }
 
     private on_ice(event: RTCPeerConnectionIceEvent) {

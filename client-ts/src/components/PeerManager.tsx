@@ -103,7 +103,7 @@ function PeerManager() {
           }
     }, [])
 
-    
+    console.log(peers);
 
     return (
         <>
