@@ -5,13 +5,19 @@ import './peer.css'
 
 interface Props {
     peer: PeerConnection
+    id: String
 }
 
-function Peer ({peer}: Props) {
+function Peer (props: Props) {
     const [progress, setProgress] = useState(0);
     const fileBoxRef = useRef<HTMLInputElement>(null);
 
+    let peer = props.peer;
+    let id = props.id;
+    
+
     console.log("peer id: " + peer.get_remote_id());
+    console.log(props)
 
     peer.on_progess = (value => setProgress(value));
 
@@ -32,14 +38,12 @@ function Peer ({peer}: Props) {
             <p className='name'>{peer.get_remote_id()}</p>
             <div className='iconph'></div>
             <progress value={progress} className='progress'></progress>
-            <input type="file" ref={fileBoxRef} id='file'></input>
-            <button onClick={handleSendFile} id='send-file'></button>
+            <input type="file" ref={fileBoxRef} id={"file-" + id}></input>
+            <button onClick={handleSendFile} id={"input-" + id}></button>
             <ul className='buttons'>
-                <li className='input-file'><label htmlFor='file' className='label'>CHOOSE FILE</label></li>
-                <li className='send-file'><label htmlFor='send-file' className='label'>{peer.get_remote_id()}</label></li>
+                <li className='input-file'><label htmlFor={"file-" + id} className='label'>CHOOSE FILE</label></li>
+                <li className='send-file'><label htmlFor={"input-" + id} className='label'>SEND</label></li>
             </ul>
-            
-            
         </>
     )
 }

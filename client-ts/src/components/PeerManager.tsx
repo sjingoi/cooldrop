@@ -103,7 +103,7 @@ function PeerManager() {
           }
     }, [])
 
-    console.log(peers);
+    //console.log(peers);
 
     return (
         <>
@@ -112,7 +112,11 @@ function PeerManager() {
             <p>Your ID: {local_uuid}</p>
             <h1>Peers:</h1>
             <ul className='peer-list'>
-                {peers.map(peer => <li key={peer.connection_id} className='peer'><Peer peer={peer} key={peer.connection_id}/></li>)}
+                {peers.map(peer => (
+                    <li key={peer.connection_id} className='peer'>
+                        <Peer peer={peer} id={peer.get_remote_id()}/>
+                    </li>
+                ))}
             </ul>
         </>
     )
