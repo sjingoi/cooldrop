@@ -1,8 +1,5 @@
-# webrtc-file-tester
-Basic WebRTC App with manual signaling
+# cooldrop
+
+Cool P2P file sharing app
 
 https://cooldrop.cc/
-
-Server Dependencies:
-node
-socket.io
