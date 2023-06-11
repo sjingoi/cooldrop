@@ -113,7 +113,7 @@ function PeerManager() {
             <h1>Peers:</h1>
             <ul className='peer-list'>
                 {peers.map(peer => (
-                    <li key={peer.connection_id} className='peer'>
+                    <li key={peer.connection_id}>
                         <Peer peer={peer} id={peer.get_remote_id()}/>
                     </li>
                 ))}
