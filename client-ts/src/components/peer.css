@@ -28,16 +28,21 @@
     width: 16rem;
     margin-top: 1rem;
     align-self: center;
+    
 
     appearance: none;
-    outline-style: solid;
-    outline-width: 2px;
-    outline-color: aliceblue;
+    /* outline-style: solid;
+    outline-width: 2px; */
+    /* outline-color: aliceblue; */
     border-radius: 0.3rem;
+    box-shadow: 0 0 0 2px white;
+    -webkit-outline: 2px
+    
 }
 
 progress::-webkit-progress-bar {
     background-color: transparent;
+    
 }
 
 progress::-webkit-progress-value {
@@ -65,12 +70,14 @@ input[type="file"] {
     flex-direction: row;
     align-items:center;
     justify-content: center;
-    outline-style: solid;
+    /* outline-style: solid;
     outline-width: 2px;
-    outline-color: aliceblue;
+    outline-color: aliceblue; */
+    box-shadow: 0 0 0 2px white;
     transition: 0.3s;
     font-family: D-DIN-Bold;
     border-radius: 0.3rem;
+    
 }
 
 button {
