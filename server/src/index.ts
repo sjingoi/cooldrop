@@ -129,4 +129,5 @@ app.get('/hello', (req: any, res: any) => {
 
 app.use(express.static("./public"));
 
-server.listen(PORT, "10.0.0.4", () => console.log(`Listening on port ${PORT}`));
+//server.listen(PORT, "10.0.0.4", () => console.log(`Listening on port ${PORT}`));
+server.listen(PORT, "192.168.0.60", () => console.log(`Listening on port ${PORT}`));

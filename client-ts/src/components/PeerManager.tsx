@@ -96,14 +96,11 @@ function PeerManager() {
         socket.on("message", message => onMessage(message));
 
         return () => {
-            //setPeers([]);
             socket.off("connect");
             socket.off("disconnect");
             socket.off("message");
           }
     }, [])
-
-    //console.log(peers);
 
     return (
         <>
