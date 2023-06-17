@@ -16,12 +16,8 @@ function PeerManager() {
 
     useEffect(() => {
         console.log("Rendered");
-        //console.log("Hello")
-        
-        //var peer_list: PeerConnection[] = [];
 
         function getPeer(connection_id: string) {
-            //console.log(connections);
             for (let i = 0; i < connections.length; i++) {
                 if (connections[i].connection_id == connection_id) {
                     return connections[i];
@@ -99,7 +95,7 @@ function PeerManager() {
             socket.off("connect");
             socket.off("disconnect");
             socket.off("message");
-          }
+        }
     }, [])
 
     return (
@@ -109,6 +105,7 @@ function PeerManager() {
             <p>Your ID: {local_uuid}</p>
             <h1>Peers:</h1>
             <ul className='peer-list'>
+                {peers.length === 0 && <p style={{marginTop: "8%"}}>No peers are currently connected. Open CoolDrop on another device, or wait for others to join.</p>}
                 {peers.map(peer => (
                     <li key={peer.connection_id}>
                         <Peer peer={peer} id={peer.get_remote_id()}/>
