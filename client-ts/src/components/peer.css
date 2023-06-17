@@ -3,9 +3,11 @@
     height: 20rem;
     display: flex;
     flex-direction: column;
-    margin-left: 1rem;
-    margin-right: 1rem;
-    /* background-color: aqua; */
+    margin: 1rem;
+
+    /* background-color: #111; */
+    /* border-radius: 1rem;
+    box-shadow: 0 0 0 1px white; */
 }
 
 .name {
