@@ -36,12 +36,12 @@ function Peer (props: Props) {
 
     const onDragEnter = () => {
         wrapperRef.current?.classList.add('dragover')
-        //console.log("drag enter")
+        console.log("drag enter")
     };
 
     const onDragLeave = () => {
         wrapperRef.current?.classList.remove('dragover')
-        //console.log("drag leave")
+        console.log("drag leave")
     };
 
     const onDrop = (e: React.DragEvent<HTMLLabelElement>) => {

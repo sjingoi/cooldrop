@@ -12,7 +12,7 @@ export interface Package {
     type: string,
     recipient: string,
     sender: string,
-    //connection_id: string,
+    connection_id: string,
     ice_candidate?: RTCIceCandidate,
     sdp?: RTCSessionDescription
 }
@@ -31,21 +31,21 @@ const SERVERS = {
 class PeerConnection {
     private connection: RTCPeerConnection;
     private datachannel?: RTCDataChannel;
-    //private local_uuid: string;
+    private local_uuid: string;
     private remote_uuid: string;
-    private send: (type: string, pkg: any) => void;
+    private send: any;
     private chunks: any[] = [];
     private file_header?: FileHeader = undefined;
-    //public connection_id: string;
+    public connection_id: string;
     public on_open = (event: Event) => {}
     public on_close = (event: Event) => {}
     public on_progess = (progress: number) => {};
 
 
-    public constructor(remote_uuid: string, output: (type: string, pkg: any) => void, remote_offer?: RTCSessionDescription) {
-        //this.connection_id = connection_id;
-        this.send = output;
-        //this.local_uuid = local_uuid;
+    public constructor(connection_id: string, local_uuid: string, remote_uuid: string, send: any, remote_offer?: RTCSessionDescription) {
+        this.connection_id = connection_id;
+        this.send = send;
+        this.local_uuid = local_uuid;
         this.remote_uuid = remote_uuid;
         this.connection = new RTCPeerConnection(SERVERS);
         this.connection.onconnectionstatechange = e => this.on_ice_state_change(e);
@@ -84,7 +84,7 @@ class PeerConnection {
 
     private on_open_connection(event: Event) {
         console.log("Connection Opened!");
-        //console.log(this.connection.remoteDescription);
+        console.log(this.connection.remoteDescription);
         this.on_open(event);
     }
 
@@ -94,27 +94,28 @@ class PeerConnection {
     }
 
     private on_ice_state_change(event: Event) {
-        //console.log("Connection state changed for remote id " + this.remote_uuid)
-        //console.log(this.connection.connectionState);
+        console.log("Connection state changed for remote id " + this.remote_uuid)
+        console.log(this.connection.connectionState);
         if (this.connection.connectionState === "disconnected") {
             this.on_close_connection(event);
         } 
     }
 
     private on_ice(event: RTCPeerConnectionIceEvent) {
-        //console.log(event.candidate);
+        console.log(event.candidate);
         if (event.candidate == null) {
             //console.log(this.connection.localDescription);
             if (this.connection.localDescription !== null) {
-                console.log("Sending local connection to " + this.remote_uuid);
-                this.send("sdp", {
+                let pkg: Package = {
+                    type: "sdp",
                     recipient: this.remote_uuid,
-                    //sender: this.local_uuid,
-                    //connection_id: this.connection_id,
+                    sender: this.local_uuid,
+                    connection_id: this.connection_id,
                     sdp: this.connection.localDescription
-                });
+                }
+                this.send(pkg);
             } else {
-                console.log("WARNING: Could not send local connection as it is null.");
+                console.log("Could not send local connection as it is null.");
             }
         }
     }
@@ -123,20 +124,20 @@ class PeerConnection {
         const dataChannel = this.datachannel;
 
         if (dataChannel === undefined) {
-            console.log("WARNING: Data channel not initialized.");
+            console.log("Data channel not initialized.");
             return;
         }
         //console.log("Type of data: " + typeof(message.data));
     
         if (typeof(message.data) !== "string") {
             if (this.file_header === undefined) {
-                console.log("WARNING: Recieving data without file header!");
+                console.log("Recieving data without file header!");
                 return;
             }
             const chunk: any = message.data;
             this.chunks.push(chunk);
             //console.log(fileHeader.numChunks);
-            //console.log(dataChannel);
+            console.log(dataChannel);
             dataChannel.send(JSON.stringify({
                 type: 'progress',
                 progress: (this.chunks.length / this.file_header.chunkcount)
@@ -162,14 +163,14 @@ class PeerConnection {
                 case 'header':
                     this.chunks = []
                     this.file_header = msg
-                    //console.log(this.file_header);
+                    console.log(this.file_header);
                     break;
                 case 'progress':
                     this.on_progess(msg.progress);
                     // progressBar.value = msg.progress;
                     break;
                 default:
-                    console.log('WARNING: unknown message type: ' + msg.type);
+                    console.log('unknown message type: ' + msg.type);
             }
     
         }
@@ -177,7 +178,7 @@ class PeerConnection {
 
     private send_header(file: File, chunkSize: number) {
         if (this.datachannel === undefined) {
-            console.log("WARNING: Data channel not initialized.");
+            console.log("Data channel not initialized.");
             return;
         }
         const numChunks = Math.ceil(file.size / chunkSize);
@@ -201,12 +202,12 @@ class PeerConnection {
         const this_connection = this;
         const dataChannel = this.datachannel;
         if (dataChannel === undefined) {
-            console.log("WARNING: Data channel not initialized.");
+            console.log("Data channel not initialized.");
             return;
         }
         reader.onload = function(event) {
             if (dataChannel.bufferedAmount + chunkSize >= 16 * 1024 * 1024) {
-                //console.log("Waiting...");
+                console.log("Waiting...");
                 setTimeout(() => {
                     this_connection.file_sender(file, chunkSize, offset);
                 }, 100)
