@@ -61,8 +61,8 @@ class Client {
     }
 
     public request_sdp(recipient_uuid: string) {
-        this.socket.send(JSON.stringify({
-            type: "generate sdp",
+        //console.error("Good error");
+        this.socket.emit("generate sdp", JSON.stringify({
             recipient: this.uuid,
             sender: recipient_uuid,
             connection_id: uuidv4()
@@ -71,29 +71,6 @@ class Client {
 
     private message_handler(message: any) {
         console.log("DEPRACATED FUNCTION CALLED");
-        if (typeof(message) === 'string') {
-            //l,;l;,,console.log(message);
-            
-            var pkg: Package = JSON.parse(message);
-            // if (pkg.type === 'sdp') {
-            //     console.log("Recieved SDP");
-            //     var remote_client = get_client(pkg.recipient);
-            //     if (remote_client != null) {
-            //         console.log("Sending SDP " + pkg.sdp.type + " to remote client.");
-            //         remote_client.send(pkg);
-            //     } else {
-            //         console.log("Remote client UUID not found.");
-            //     }
-            // } else 
-            if (pkg.type == 'presence') {
-                for (var i: number = 0; i < clients.length; i++) {
-                    if (clients[i] != this) {
-                        clients[i].request_sdp(this.uuid);
-                    }
-                }
-            }
-            
-        }
     }
     
     private close_handler() {
@@ -112,33 +89,28 @@ class Client {
 }
 
 function setup_client(client_info: any, socket: Socket) {
-    //var client_uuid: string = uuidv4();
     let uuid: string = client_info.uuid;
     let name: string = client_info.name;
-
-    // var uuid_pkg: Conncetion_Info = {
-    //     type: 'uuid',
-    //     uuid: client_uuid
-    // }
-    // socket.send(JSON.stringify(uuid_pkg));
 
     if (get_client(uuid) != null) {
         console.log("Client " + uuid + " already exists!");
         return;
     }
-    if (uuid !== undefined) {
-
-        var client: Client = new Client(socket, uuid);
-
-        for (var i: number = 0; i < clients.length; i++) {
-            clients[i].request_sdp(uuid);
-        }
-        clients.push(client);
-        console.log("Client " + name + " " + uuid + " initialized.");
-        console.log("There are " + clients.length + " clients initialized.");
-    } else {
+    if (uuid === undefined) {
         console.log("Client UUID is undefined.");
+        return;
     }
+
+    var client: Client = new Client(socket, uuid);
+
+    // Make all clients aware of the new client to begin the signaling process.
+    for (var i: number = 0; i < clients.length; i++) {
+        clients[i].request_sdp(uuid);
+    }
+
+    clients.push(client);
+    console.log("Client " + name + " " + uuid + " initialized.");
+    console.log("There are " + clients.length + " clients initialized.");
 }
 
 io.on('connection', (socket: Socket) => {

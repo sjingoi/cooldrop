@@ -50,37 +50,6 @@ function PeerManager() {
             setPeers([]);
             setIsConnected(false);
         }
-        
-        function onMessage(message: any) {
-
-            if (typeof(message) !== 'string') return;
-
-            console.log("Reieved Message.")
-        
-            var msg = JSON.parse(message);
-
-            switch(msg.type) {
-        
-                case 'uuid':
-                    local_uuid = msg.uuid;
-                    break;
-        
-                case 'generate sdp':
-                    console.log("New peer found. Creating new connection.")
-                    createConnection(msg);
-                    break;
-        
-                case 'sdp':
-                    const peer = getPeer(msg.connection_id)
-                    if (peer !== undefined) {
-                        console.log("Setting remote for " + peer.connection_id)
-                        peer.set_remote(msg.sdp);
-                    } else {
-                        createConnection(msg);
-                    }
-                    break;
-            }
-        }
 
         function onSDP(message: any) {
             console.log("Recieved SDP");
@@ -92,6 +61,12 @@ function PeerManager() {
             } else {
                 createConnection(msg);
             }
+        }
+
+        function onReqSDPGen(message: any) {
+            var msg = JSON.parse(message);
+            console.log("New peer found. Creating new connection.");
+            createConnection(msg);
         }
 
         function sendToServer(type: string, pkg: any) {
@@ -119,8 +94,9 @@ function PeerManager() {
 
         socket.on("connect", () => onConnect());
         socket.on("disconnect", () => onDisconnect());
-        socket.on("message", message => onMessage(message));
+        socket.on("message", message => console.error("DEPRACTED ONMESSAGE"));
         socket.on("sdp", message => onSDP(message));
+        socket.on("generate sdp", message => onReqSDPGen(message));
 
 
         return () => {
@@ -128,6 +104,7 @@ function PeerManager() {
             socket.off("disconnect");
             socket.off("message");
             socket.off("sdp");
+            socket.off("generate sdp");
         }
     }, [])
 
@@ -136,7 +113,6 @@ function PeerManager() {
             <p>Connection Status: </p>
             {isConnected ? <p style={{color: "green"}}>Connected</p> : <p style={{color: "red"}}>Disconnected</p>}
             <p>Your ID: {local_uuid}</p>
-            <h1>Peers:</h1>
             <ul className='peer-list'>
                 {peers.length === 0 && <p style={{marginTop: "8%"}}>No peers are currently connected. Open CoolDrop on another device, or wait for others to join.</p>}
                 {peers.map(peer => (

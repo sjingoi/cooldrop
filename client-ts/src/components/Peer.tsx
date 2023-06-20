@@ -18,7 +18,7 @@ function Peer (props: Props) {
     let id = props.id;
     
 
-    console.log("peer id: " + peer.get_remote_id());
+    //console.log("peer id: " + peer.get_remote_id());
     //console.log(props)
 
     peer.on_progess = (value => setProgress(value));
