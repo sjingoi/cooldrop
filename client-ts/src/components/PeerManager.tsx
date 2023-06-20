@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import socket from '../scripts/socket';
 import PeerConnection from '../scripts/peer-connection';
 import Peer from './Peer';
+import { v4 as uuidv4 } from 'uuid';
 import './peermanager.css'
 
 var local_uuid: string;
@@ -12,10 +13,22 @@ function PeerManager() {
     const [peers, setPeers] = useState<PeerConnection[]>([]);
     //console.log("New render")
     //console.log(peers);
-    
 
     useEffect(() => {
         console.log("Rendered");
+
+        let uuid = localStorage.getItem("uuid");
+        if (uuid === null) {
+            local_uuid = uuidv4();
+            localStorage.setItem("uuid", local_uuid);
+        } else {
+            local_uuid = uuid;
+        }
+
+        socket.emit("init", JSON.stringify({
+            "uuid": local_uuid,
+            "name": "test",
+        }));
 
         function getPeer(connection_id: string) {
             for (let i = 0; i < connections.length; i++) {

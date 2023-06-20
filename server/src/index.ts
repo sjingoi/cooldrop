@@ -23,6 +23,11 @@ interface Package {
     sdp: any
 }
 
+interface Init {
+    uuid: string,
+    name: string
+}
+
 interface Conncetion_Info {
     type: 'uuid',
     uuid: string
@@ -65,6 +70,7 @@ class Client {
     }
 
     private message_handler(message: any) {
+        console.log("DEPRACATED FUNCTION CALLED");
         if (typeof(message) === 'string') {
             //l,;l;,,console.log(message);
             
@@ -105,6 +111,36 @@ class Client {
     }
 }
 
+function setup_client(client_info: any, socket: Socket) {
+    //var client_uuid: string = uuidv4();
+    let uuid: string = client_info.uuid;
+    let name: string = client_info.name;
+
+    // var uuid_pkg: Conncetion_Info = {
+    //     type: 'uuid',
+    //     uuid: client_uuid
+    // }
+    // socket.send(JSON.stringify(uuid_pkg));
+
+    if (get_client(uuid) != null) {
+        console.log("Client " + uuid + " already exists!");
+        return;
+    }
+    if (uuid !== undefined) {
+
+        var client: Client = new Client(socket, uuid);
+
+        for (var i: number = 0; i < clients.length; i++) {
+            clients[i].request_sdp(uuid);
+        }
+        clients.push(client);
+        console.log("Client " + name + " " + uuid + " initialized.");
+        console.log("There are " + clients.length + " clients initialized.");
+    } else {
+        console.log("Client UUID is undefined.");
+    }
+}
+
 io.on('connection', (socket: Socket) => {
     socket.on("sdp", (message: any) => {
         if (typeof(message) === 'string') {
@@ -130,22 +166,15 @@ io.on('connection', (socket: Socket) => {
             console.log("Invalid sdp message.");
         }
     })
-    var client_uuid: string = uuidv4();
-
-    var uuid_pkg: Conncetion_Info = {
-        type: 'uuid',
-        uuid: client_uuid
-    }
-    socket.send(JSON.stringify(uuid_pkg));
-
-    var client: Client = new Client(socket, client_uuid);
-    console.log("There are " + clients.length + " clients connected.");
-
-    for (var i: number = 0; i < clients.length; i++) {
-        clients[i].request_sdp(client_uuid);
-    }
     
-    clients.push(client);
+    socket.on("init", (message: any) => {
+        if (typeof(message) === 'string') {
+            var client_info: Init = JSON.parse(message);
+            setup_client(client_info, socket);
+        } else {
+            console.log("Invalid init message.");
+        }
+    });
 })
 
 app.get('/hello', (req: any, res: any) => {
