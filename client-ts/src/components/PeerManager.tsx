@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import socket from '../scripts/socket';
-import PeerConnection, { Package } from '../scripts/peer-connection';
+import PeerConnection from '../scripts/peer-connection';
 import Peer from './Peer';
 import './peermanager.css'
 
@@ -11,7 +11,7 @@ function PeerManager() {
     const [isConnected, setIsConnected] = useState(socket.connected);
     const [peers, setPeers] = useState<PeerConnection[]>([]);
     //console.log("New render")
-    console.log(peers);
+    //console.log(peers);
     
 
     useEffect(() => {
@@ -68,10 +68,27 @@ function PeerManager() {
                     break;
             }
         }
+
+        function onSDP(message: any) {
+            console.log("Recieved SDP");
+            var msg = JSON.parse(message);
+            const peer = getPeer(msg.connection_id);
+            if (peer !== undefined) {
+                console.log("Setting remote for " + peer.get_remote_id())
+                peer.set_remote(msg.sdp);
+            } else {
+                createConnection(msg);
+            }
+        }
+
+        function sendToServer(type: string, pkg: any) {
+            pkg.sender = local_uuid;
+            socket.emit(type, JSON.stringify(pkg));
+        }
         
         function createConnection(params?: any) {
             
-            let new_peer: PeerConnection = new PeerConnection(params.connection_id, params.recipient, params.sender, (pkg: Package) => socket.send(JSON.stringify(pkg)), params.sdp);
+            let new_peer: PeerConnection = new PeerConnection(params.connection_id, params.sender, sendToServer, params.sdp);
             
             new_peer.on_open = () => {
                 setPeers(prevPeers => {
@@ -84,17 +101,20 @@ function PeerManager() {
                 });
             }
             connections.push(new_peer);
-            console.log("Creating peer with id " + new_peer.get_remote_id())
+            console.log("Created peer with id " + new_peer.get_remote_id())
         }
 
         socket.on("connect", () => onConnect());
         socket.on("disconnect", () => onDisconnect());
         socket.on("message", message => onMessage(message));
+        socket.on("sdp", message => onSDP(message));
+
 
         return () => {
             socket.off("connect");
             socket.off("disconnect");
             socket.off("message");
+            socket.off("sdp");
         }
     }, [])
 

@@ -8,14 +8,14 @@ interface FileHeader {
     chunkcount: number
 }
 
-export interface Package {
-    type: string,
-    recipient: string,
-    sender: string,
-    connection_id: string,
-    ice_candidate?: RTCIceCandidate,
-    sdp?: RTCSessionDescription
-}
+// export interface Package {
+//     type: string,
+//     recipient: string,
+//     sender: string,
+//     connection_id: string,
+//     ice_candidate?: RTCIceCandidate,
+//     sdp?: RTCSessionDescription
+// }
 
 //var fileHeader: FileHeader;
 //var chunks: any[];
@@ -31,9 +31,9 @@ const SERVERS = {
 class PeerConnection {
     private connection: RTCPeerConnection;
     private datachannel?: RTCDataChannel;
-    private local_uuid: string;
+    //private local_uuid: string;
     private remote_uuid: string;
-    private send: any;
+    private send: (type: string, pkg: any) => void;
     private chunks: any[] = [];
     private file_header?: FileHeader = undefined;
     public connection_id: string;
@@ -42,10 +42,10 @@ class PeerConnection {
     public on_progess = (progress: number) => {};
 
 
-    public constructor(connection_id: string, local_uuid: string, remote_uuid: string, send: any, remote_offer?: RTCSessionDescription) {
+    public constructor(connection_id: string, remote_uuid: string, send: any, remote_offer?: RTCSessionDescription) {
         this.connection_id = connection_id;
         this.send = send;
-        this.local_uuid = local_uuid;
+        //this.local_uuid = local_uuid;
         this.remote_uuid = remote_uuid;
         this.connection = new RTCPeerConnection(SERVERS);
         this.connection.onconnectionstatechange = e => this.on_ice_state_change(e);
@@ -54,6 +54,8 @@ class PeerConnection {
 
     private setup_datachannel(remote_offer?: RTCSessionDescription) {
         this.connection.onicecandidate = ice_event => this.on_ice(ice_event);
+        // console.log("SETTING DATACHANNEL")
+        // console.log(remote_offer);
         if (remote_offer === undefined) {
             console.log("Creating Local Connection")
 
@@ -67,7 +69,7 @@ class PeerConnection {
             this.datachannel.onclose = event => this.on_close_connection(event);
             
         } else {
-
+            
             // REMOTE
             console.log("Creating Remote Connection")
             
@@ -84,7 +86,7 @@ class PeerConnection {
 
     private on_open_connection(event: Event) {
         console.log("Connection Opened!");
-        console.log(this.connection.remoteDescription);
+        //console.log(this.connection.remoteDescription);
         this.on_open(event);
     }
 
@@ -94,26 +96,27 @@ class PeerConnection {
     }
 
     private on_ice_state_change(event: Event) {
-        console.log("Connection state changed for remote id " + this.remote_uuid)
-        console.log(this.connection.connectionState);
+        //console.log("Connection state changed for remote id " + this.remote_uuid)
+        //console.log(this.connection.connectionState);
         if (this.connection.connectionState === "disconnected") {
             this.on_close_connection(event);
         } 
     }
 
     private on_ice(event: RTCPeerConnectionIceEvent) {
-        console.log(event.candidate);
+        //console.log(event.candidate);
         if (event.candidate == null) {
             //console.log(this.connection.localDescription);
             if (this.connection.localDescription !== null) {
-                let pkg: Package = {
+                let pkg: any = {
                     type: "sdp",
                     recipient: this.remote_uuid,
-                    sender: this.local_uuid,
+                    // sender: this.local_uuid,
                     connection_id: this.connection_id,
                     sdp: this.connection.localDescription
                 }
-                this.send(pkg);
+                //console.log("Sending SDP");
+                this.send("sdp", pkg);
             } else {
                 console.log("Could not send local connection as it is null.");
             }
@@ -137,7 +140,7 @@ class PeerConnection {
             const chunk: any = message.data;
             this.chunks.push(chunk);
             //console.log(fileHeader.numChunks);
-            console.log(dataChannel);
+            //console.log(dataChannel);
             dataChannel.send(JSON.stringify({
                 type: 'progress',
                 progress: (this.chunks.length / this.file_header.chunkcount)
@@ -163,7 +166,7 @@ class PeerConnection {
                 case 'header':
                     this.chunks = []
                     this.file_header = msg
-                    console.log(this.file_header);
+                    //console.log(this.file_header);
                     break;
                 case 'progress':
                     this.on_progess(msg.progress);

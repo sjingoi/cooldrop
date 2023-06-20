@@ -16,6 +16,7 @@ if (process.env.PORT !== undefined) {
 
 interface Package {
     type: string,
+    sender: string,
     recipient: string,
     connection_id: string,
     ice_candidate: RTCIceCandidate,
@@ -68,16 +69,17 @@ class Client {
             //l,;l;,,console.log(message);
             
             var pkg: Package = JSON.parse(message);
-            if (pkg.type === 'sdp') {
-                console.log("Recieved SDP");
-                var remote_client = get_client(pkg.recipient);
-                if (remote_client != null) {
-                    console.log("Sending SDP " + pkg.sdp.type + " to remote client.");
-                    remote_client.send(pkg);
-                } else {
-                    console.log("Remote client UUID not found.");
-                }
-            } else if (pkg.type == 'presence') {
+            // if (pkg.type === 'sdp') {
+            //     console.log("Recieved SDP");
+            //     var remote_client = get_client(pkg.recipient);
+            //     if (remote_client != null) {
+            //         console.log("Sending SDP " + pkg.sdp.type + " to remote client.");
+            //         remote_client.send(pkg);
+            //     } else {
+            //         console.log("Remote client UUID not found.");
+            //     }
+            // } else 
+            if (pkg.type == 'presence') {
                 for (var i: number = 0; i < clients.length; i++) {
                     if (clients[i] != this) {
                         clients[i].request_sdp(this.uuid);
@@ -104,6 +106,30 @@ class Client {
 }
 
 io.on('connection', (socket: Socket) => {
+    socket.on("sdp", (message: any) => {
+        if (typeof(message) === 'string') {
+            console.log("Recieved SDP");
+
+            let pkg: Package = JSON.parse(message);
+            let remote_client = get_client(pkg.recipient);
+            let sender_client = get_client(pkg.sender);
+
+            if (sender_client != null) {
+                console.log("Recieved SDP from " + sender_client.uuid + " client.");
+            } else {
+                console.log("Sender client UUID not found.");
+            }
+
+            if (remote_client != null) {
+                console.log("Sending SDP to " + remote_client.uuid + " client.");
+                remote_client.socket.emit('sdp', message);
+            } else {
+                console.log("Remote client UUID not found.");
+            }
+        } else {
+            console.log("Invalid sdp message.");
+        }
+    })
     var client_uuid: string = uuidv4();
 
     var uuid_pkg: Conncetion_Info = {

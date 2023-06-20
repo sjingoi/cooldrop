@@ -19,7 +19,7 @@ function Peer (props: Props) {
     
 
     console.log("peer id: " + peer.get_remote_id());
-    console.log(props)
+    //console.log(props)
 
     peer.on_progess = (value => setProgress(value));
 
@@ -48,7 +48,7 @@ function Peer (props: Props) {
         e.preventDefault()
         wrapperRef.current?.classList.remove('dragover')
         handleSendFile(e.dataTransfer.files)
-        console.log(e.dataTransfer.files[0])
+        //console.log(e.dataTransfer.files[0])
     };
 
     return (
