@@ -12,7 +12,7 @@ interface Props {
     updateName: any;
 }
 
-function PeerManager(props: any) {
+function PeerManager(props: Props) {
     const [isConnected, setIsConnected] = useState(socket.connected);
     const [peers, setPeers] = useState<PeerConnection[]>([]);
     //console.log("New render")
