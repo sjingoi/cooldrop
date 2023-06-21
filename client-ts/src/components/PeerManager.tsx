@@ -14,16 +14,18 @@ function PeerManager() {
     //console.log("New render")
     //console.log(peers);
 
+    let uuid = localStorage.getItem("uuid");
+    if (uuid === null) {
+        local_uuid = uuidv4();
+        localStorage.setItem("uuid", local_uuid);
+    } else {
+        local_uuid = uuid;
+    }
+
     useEffect(() => {
         console.log("Rendered");
 
-        let uuid = localStorage.getItem("uuid");
-        if (uuid === null) {
-            local_uuid = uuidv4();
-            localStorage.setItem("uuid", local_uuid);
-        } else {
-            local_uuid = uuid;
-        }
+        
 
         socket.emit("init", JSON.stringify({
             "uuid": local_uuid,
@@ -117,7 +119,7 @@ function PeerManager() {
                 {peers.length === 0 && <p style={{marginTop: "8%"}}>No peers are currently connected. Open CoolDrop on another device, or wait for others to join.</p>}
                 {peers.map(peer => (
                     <li key={peer.connection_id}>
-                        <Peer peer={peer} id={peer.get_remote_id()}/>
+                        <Peer peer={peer} id={peer.get_remote_id()} name="Very Cool Name"/>
                     </li>
                 ))}
             </ul>

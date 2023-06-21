@@ -1,0 +1,58 @@
+.nameselect {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-self: center;
+    transform: translate(0, -30%);
+}
+
+.welcome {
+    margin-top: 1rem;
+    font-size: 50px;
+    align-self: center;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-align: center;
+}
+
+.enter-name {
+    font-size: 20px;
+    align-self: center;
+    text-align: center;
+    margin-top: 1rem;
+    margin-bottom: 0rem;
+}
+
+.name-input {
+    text-decoration: none;
+    align-self: center;
+    margin-top: 0.5rem;
+    background-color: transparent;
+    text-align: center;
+    font-family: D-DIN-Regular;
+    font-weight: 500;
+    transition: 500ms;
+
+    
+
+    font-size: 40px;
+    height: 70px;
+    width: 90%;
+    color: white;
+
+    border: none;
+    overflow: auto;
+    outline: none;
+
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+
+    resize: none;
+}
+
+.submit-name {
+    height: 100px;
+    width: 100px;
+    background-color: rebeccapurple;
+}

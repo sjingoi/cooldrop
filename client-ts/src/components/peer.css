@@ -9,16 +9,26 @@
 }
 
 .name {
-    margin-top: 1rem;
+    margin-top: 0rem;
+    margin-bottom: 0.5rem;
     align-self: center;
+    font-size: 20px;
+}
+
+.uuid {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    align-self: center;
+    font-size: 12px;
+    color: #888;
 }
 
 .icon {
     height: 9rem;
     width: 9rem;
     align-self: center;
-    margin-top: -1rem;
-    margin-bottom: -1rem;
+    margin-top: -1.5rem;
+    margin-bottom: -1.5rem;
     
     /* background-color: #222; */
 }
@@ -26,7 +36,7 @@
 .progress {
     height: 24px;
     width: 16rem;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
     align-self: center;
     
 
@@ -60,7 +70,7 @@ input[type="file"] {
 
 
 .input-file {
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     align-self: center;
     height: 3.5rem;
     width: 10rem;
