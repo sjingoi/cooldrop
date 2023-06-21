@@ -26,10 +26,16 @@ body {
     background-color: #000000;
     font-family:D-DIN-Regular;
     margin: 0;
+    margin-left: 8px;
+    margin-right: 8px;
     padding: 0;
+    height: 100%;
+}
+
+html, body, #root, .App {
+  height: 100%;
 }
 
 p {
     color: aliceblue;
-    margin: 1rem;
 }

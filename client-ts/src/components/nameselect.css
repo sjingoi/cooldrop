@@ -3,11 +3,11 @@
     flex-direction: column;
     width: 100%;
     align-self: center;
-    transform: translate(0, -30%);
 }
 
 .welcome {
-    margin-top: 1rem;
+    margin-top: 0rem;
+    margin-bottom: 0rem;
     font-size: 50px;
     align-self: center;
     font-weight: bold;
@@ -19,7 +19,7 @@
     font-size: 20px;
     align-self: center;
     text-align: center;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
     margin-bottom: 0rem;
 }
 
@@ -51,8 +51,38 @@
     resize: none;
 }
 
-.submit-name {
-    height: 100px;
-    width: 100px;
-    background-color: rebeccapurple;
+.submit-label {
+    margin-top: 1.5rem;
+    align-self: center;
+    height: 3.5rem;
+    width: 10rem;
+
+    background-color: #222;
+    color: #555;
+    box-shadow: none;
+
+    
+    display: flex;
+    flex-direction: row;
+    align-items:center;
+    justify-content: center;
+    /* outline-style: solid;
+    outline-width: 2px;
+    outline-color: aliceblue; */
+    
+    transition: 0.3s;
+    font-family: D-DIN-Bold;
+    border-radius: 0.3rem;
+}
+
+.submit-label.enabled {
+    background-color: transparent;
+    color: white;
+    box-shadow: 0 0 0 2px white;
+    cursor: default;
+}
+
+.submit-label.enabled:hover {
+    background-color: aliceblue;
+    color: black;
 }

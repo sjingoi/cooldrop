@@ -8,13 +8,18 @@ import './peermanager.css'
 var local_uuid: string;
 var connections: PeerConnection[] = [];
 
-function PeerManager() {
+interface Props {
+    updateName: any;
+}
+
+function PeerManager(props: any) {
     const [isConnected, setIsConnected] = useState(socket.connected);
     const [peers, setPeers] = useState<PeerConnection[]>([]);
     //console.log("New render")
     //console.log(peers);
 
     let uuid = localStorage.getItem("uuid");
+    let name = localStorage.getItem("name");
     if (uuid === null) {
         local_uuid = uuidv4();
         localStorage.setItem("uuid", local_uuid);
@@ -114,6 +119,7 @@ function PeerManager() {
         <>
             <p>Connection Status: </p>
             {isConnected ? <p style={{color: "green"}}>Connected</p> : <p style={{color: "red"}}>Disconnected</p>}
+            <p style={{cursor: "pointer"}} onClick={() => props.updateName(null)}>Your Name: {name}</p>
             <p>Your ID: {local_uuid}</p>
             <ul className='peer-list'>
                 {peers.length === 0 && <p style={{marginTop: "8%"}}>No peers are currently connected. Open CoolDrop on another device, or wait for others to join.</p>}

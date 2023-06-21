@@ -3,15 +3,19 @@
 import PeerManager from "./components/PeerManager"
 import TopBar from "./components/TopBar"
 import NameSelect from "./components/NameSelect"
+import { useState } from "react"
 import './app.css'
 
 
 function App() {
+  const [name, setName] = useState<string | null>(localStorage.getItem("name"));
 
-  if (localStorage.getItem("name") === null) {
+  
+
+  if (name === null) {
     return (
       <>
-        <NameSelect/>
+        <NameSelect updateName={setName}/>
       </>
     )
   }
@@ -19,7 +23,7 @@ function App() {
   return (
   <>
     <TopBar/>
-    <PeerManager/>
+    <PeerManager updateName={setName}/>
   </>
   )
 }

@@ -119,6 +119,7 @@ button {
     height: 100%;
     transition: 0.3s;
     font-family: D-DIN-Bold;
+
 }
 
 .input-file.dragover {

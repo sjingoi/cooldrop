@@ -58,7 +58,7 @@ function Peer (props: Props) {
             <img src={computerIcon} className='icon'></img>
             <p className='uuid'>{peer.get_remote_id()}</p>
             <progress value={progress} className='progress'></progress>
-            <label htmlFor={"file-" + id} className='input-file' ref={wrapperRef} onDragEnter={onDragEnter} onDragLeave={onDragLeave} onDrop={e => onDrop(e)} onDragOver={(event) => event.preventDefault()}>CHOOSE FILE</label>
+            <label htmlFor={"file-" + id} className='input-file' ref={wrapperRef} onDragEnter={onDragEnter} onDragLeave={onDragLeave} onDrop={e => onDrop(e)} onDragOver={(event) => event.preventDefault()}>SEND FILE</label>
             <input type="file" ref={fileBoxRef} id={"file-" + id} onChange={() => {if (fileBoxRef.current) handleSendFile(fileBoxRef.current.files)}} multiple></input>
         </div>
     )
