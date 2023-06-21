@@ -122,7 +122,12 @@ function PeerManager(props: any) {
             <p style={{cursor: "pointer"}} onClick={() => props.updateName(null)}>Your Name: {name}</p>
             <p>Your ID: {local_uuid}</p>
             <ul className='peer-list'>
-                {peers.length === 0 && <p style={{marginTop: "8%"}}>No peers are currently connected. Open CoolDrop on another device, or wait for others to join.</p>}
+                {peers.length === 0 && 
+                    <div style={{display: "flex", flexDirection: "column"}}>
+                        <p style={{marginTop: "8", marginBottom: "0px"}}>No peers are currently connected. Open CoolDrop on another device, or wait for others to join.</p>
+                        <p style={{marginTop: "8px", fontSize: "14px", color: "#888"}}>Tip: If you are having issues connecting, try refreshing the page.</p>
+                    </div>
+                }
                 {peers.map(peer => (
                     <li key={peer.connection_id}>
                         <Peer peer={peer} id={peer.get_remote_id()} name="Very Cool Name"/>
