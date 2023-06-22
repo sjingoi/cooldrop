@@ -64,6 +64,7 @@ function PeerManager(props: Props) {
             const peer = getPeer(msg.connection_id);
             if (peer !== undefined) {
                 console.log("Setting remote for " + peer.get_remote_id())
+                peer.remote_name = msg.sender_name;
                 peer.set_remote(msg.sdp);
             } else {
                 createConnection(msg);
@@ -78,12 +79,13 @@ function PeerManager(props: Props) {
 
         function sendToServer(type: string, pkg: any) {
             pkg.sender = local_uuid;
+            pkg.sender_name = name;
             socket.emit(type, JSON.stringify(pkg));
         }
         
         function createConnection(params?: any) {
             
-            let new_peer: PeerConnection = new PeerConnection(params.connection_id, params.sender, sendToServer, params.sdp);
+            let new_peer: PeerConnection = new PeerConnection(params.connection_id, params.sender_name, params.sender, sendToServer, params.sdp);
             
             new_peer.on_open = () => {
                 setPeers(prevPeers => {
@@ -130,7 +132,7 @@ function PeerManager(props: Props) {
                 }
                 {peers.map(peer => (
                     <li key={peer.connection_id}>
-                        <Peer peer={peer} id={peer.get_remote_id()} name="Very Cool Name"/>
+                        <Peer peer={peer} id={peer.get_remote_id()} name={peer.remote_name}/>
                     </li>
                 ))}
             </ul>

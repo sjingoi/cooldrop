@@ -31,21 +31,21 @@ const SERVERS = {
 class PeerConnection {
     private connection: RTCPeerConnection;
     private datachannel?: RTCDataChannel;
-    //private local_uuid: string;
     private remote_uuid: string;
     private send: (type: string, pkg: any) => void;
     private chunks: any[] = [];
     private file_header?: FileHeader = undefined;
+    public remote_name: string;
     public connection_id: string;
     public on_open = (event: Event) => {}
     public on_close = (event: Event) => {}
     public on_progess = (progress: number) => {};
 
 
-    public constructor(connection_id: string, remote_uuid: string, send: any, remote_offer?: RTCSessionDescription) {
+    public constructor(connection_id: string, remote_name: string, remote_uuid: string, send: any, remote_offer?: RTCSessionDescription) {
         this.connection_id = connection_id;
         this.send = send;
-        //this.local_uuid = local_uuid;
+        this.remote_name = remote_name;
         this.remote_uuid = remote_uuid;
         this.connection = new RTCPeerConnection(SERVERS);
         this.connection.onconnectionstatechange = e => this.on_ice_state_change(e);
