@@ -46,16 +46,10 @@ function PeerManager(props: Props) {
             return undefined;
         }
 
-        function onConnect() {
-            console.log("Connected to Server.");
-            setPeers([]);
-            setIsConnected(true);
-        }
-
-        function onDisconnect() {
-            console.log("Disconnected from Server.");
-            setPeers([]);
-            setIsConnected(false);
+        const toggleConnect = () => {
+            console.log(isConnected ? 'Disconnected from' : 'Connected To', 'Server.')
+            setPeers([])
+            setIsConnected(!isConnected)
         }
 
         function onSDP(message: any) {
@@ -101,8 +95,8 @@ function PeerManager(props: Props) {
             console.log("Created peer with id " + new_peer.get_remote_id())
         }
 
-        socket.on("connect", () => onConnect());
-        socket.on("disconnect", () => onDisconnect());
+        socket.on("connect", () => toggleConnect());
+        socket.on("disconnect", () => toggleConnect());
         socket.on("message", message => console.error("DEPRACTED ONMESSAGE"));
         socket.on("sdp", message => onSDP(message));
         socket.on("generate sdp", message => onReqSDPGen(message));
